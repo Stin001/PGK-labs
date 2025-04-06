@@ -1,4 +1,3 @@
-
 #include "Engine.h"
 #include "Input.h"
 #include "Renderer.h"
@@ -6,8 +5,7 @@
 #include "Primitiv.h"
 #include <vector>
 
-
-Engine::Engine() : window(nullptr), renderer(nullptr), isRunning(false)  {}
+Engine::Engine() : window(nullptr), renderer(nullptr), isRunning(false) {}
 
 Engine::~Engine() {
     Shutdown();
@@ -19,7 +17,8 @@ bool Engine::Init() {
         return false;
     }
 
-    window = SDL_CreateWindow("Silnik 2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Silnik 2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        800, 600, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "B³¹d tworzenia okna: " << SDL_GetError() << std::endl;
         return false;
@@ -50,105 +49,69 @@ void Engine::Run() {
             isRunning = false;
         }
 
-
         SDL_RenderClear(renderer);
 
-
-        // spawn kwadratow 
-        //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // ---------------------------------
+        // Tworzenie kwadratu po wciœniêciu '1' i klikniêciu mysz¹
         if (Input::IsKeyPressed(SDLK_1) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
-
-
-
             Point2D mousePos = Input::getMausPos();
-
-
-
-            primityw.push_back(Primitive(PrimitiveType::KWADRAT, mousePos, 50, 50, { 255, 0, 0, 255 }));
-
-
-
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            //SDL_RenderClear(renderer);
-
-
-            Renderer::FillRect(mousePos, 50, 50, { 255, 0, 0, 255 });
-
-            SDL_RenderPresent(renderer);
-
-
+            primityw.push_back(
+                Primitive(PrimitiveType::KWADRAT, mousePos, 50, 50, { 255, 0, 0, 255 })
+            );
         }
 
-
-        for (auto& p : primityw) {  
+        // Rysowanie wszystkich kwadratów
+        for (auto& p : primityw) {
             if (p.type == PrimitiveType::KWADRAT) {
                 Renderer::FillRect(p.position, p.width, p.height, p.color);
             }
         }
 
-        //---------------------------------------------------------------------------------
-
-        // make unregular cicrale 
-        //-------------------------------------------------------------------------------------------------------
-
+        // ---------------------------------
+        // Tworzenie nieregularnego wielok¹ta po wciœniêciu '2' i klikniêciu mysz¹
         if (Input::IsKeyPressed(SDLK_2) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            Point2D mousePos = Input::getMausPos();
 
-            Point2D mousePos = Input::getMausPos();  // U¿ywamy mousePos w tym bloku
-
-            std::vector< Point2D > points = {
-                {100 + mousePos.x, 100 + mousePos.y},
-                {150 + mousePos.x, 50 + mousePos.y},
-                {200 + mousePos.x, 100 + mousePos.y},
-                {175 + mousePos.x, 150 + mousePos.y},
-                {125 + mousePos.x, 150 + mousePos.y},
-                {134 + mousePos.x, 168 + mousePos.y}
+            // Przyk³adowy nieregularny wielok¹t o wierzcho³kach w okolicy klikniêcia
+            std::vector<Point2D> points = {
+                {mousePos.x,     mousePos.y},
+                {mousePos.x + 40, mousePos.y},
+                {mousePos.x + 60, mousePos.y + 30},
+                {mousePos.x + 30, mousePos.y + 60},
+                {mousePos.x,     mousePos.y + 30}
             };
-
-
-            
-
             unregular.push_back(points);
+        }
 
-
-           /* for (const auto& points : unregular) {
-
-                Renderer::UnregularFill(points, { 255, 0, 0, 255 });
-
-                Renderer::DrawUnregular(points, { 255, 0, 0, 255 });
-              
-              
-                
-            } */
-         }
-
-      
-
+        // Rysowanie wszystkich nieregularnych wielok¹tów
         for (const auto& points : unregular) {
-
             Renderer::UnregularFill(points, { 255, 0, 0, 255 });
             Renderer::DrawUnregular(points, { 255, 0, 0, 255 });
         }
-        
 
+        // ---------------------------------
+        // Tworzenie kó³ka po wciœniêciu '3' i klikniêciu mysz¹
+        if (Input::IsKeyPressed(SDLK_3) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            Point2D mousePos = Input::getMausPos();
+            // width wykorzystamy jako "œrednicê" lub "œrednicê i height" - zale¿nie od implementacji
+            primityw.push_back(
+                Primitive(PrimitiveType::CIRCLE, mousePos, 50, 0, { 255, 0, 0, 255 })
+            );
+        }
 
-        //---------------------------------------------------------------------
+        // Rysowanie wszystkich kó³ek
+        for (auto& p : primityw) {
+            if (p.type == PrimitiveType::CIRCLE) {
+                // Jako radius przyjmujemy po³owê p.width
+                int radius = p.width / 2;
+                Renderer::FillCircle(p.position, radius, p.color);
+            }
+        }
 
-
-       SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-       
-
-
-
-
-      //  Renderer::DrawPoint(Point2D(400, 300), { 255, 0, 0, 255 });
-       // Renderer::DrawLine(Point2D(200, 150), Point2D(600, 450), { 0, 255, 0, 255 });
-
-
-
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderPresent(renderer);
     }
 }
-
 
 void Engine::Shutdown() {
     if (renderer) SDL_DestroyRenderer(renderer);

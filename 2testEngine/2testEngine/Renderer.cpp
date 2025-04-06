@@ -43,14 +43,14 @@ void Renderer::DrawUnregular(const std::vector<Point2D>& points, SDL_Color color
     if (points.size() < 2) return;
     SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 
-    // Rysowanie krawêdzi
+    // rysowanie kolejnych krawêdzi
     for (size_t i = 0; i < points.size() - 1; ++i) {
         SDL_RenderDrawLine(sdlRenderer,
             (int)points[i].x, (int)points[i].y,
             (int)points[i + 1].x, (int)points[i + 1].y
         );
     }
-    // Po³¹czenie ostatniego wierzcho³ka z pierwszym
+    // zamkniêcie (ostatni -> pierwszy)
     SDL_RenderDrawLine(sdlRenderer,
         (int)points[points.size() - 1].x, (int)points[points.size() - 1].y,
         (int)points[0].x, (int)points[0].y
@@ -58,11 +58,11 @@ void Renderer::DrawUnregular(const std::vector<Point2D>& points, SDL_Color color
 }
 
 void Renderer::UnregularFill(const std::vector<Point2D>& points, const SDL_Color& color) {
-    if (points.size() < 3) return; // Minimum 3 wierzcho³ki
+    if (points.size() < 3) return; // minimum 3 wierzcho³ki
 
     SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 
-    // Znajdujemy minY, maxY
+    // znajdŸ minY, maxY
     int minY = (int)points[0].y;
     int maxY = (int)points[0].y;
     for (const auto& p : points) {
@@ -70,28 +70,25 @@ void Renderer::UnregularFill(const std::vector<Point2D>& points, const SDL_Color
         if (p.y > maxY) maxY = (int)p.y;
     }
 
-    // Skanujemy liniê po linii (scan-line)
+    // scan-line
     for (int y = minY; y <= maxY; y++) {
         std::vector<int> interX;
-        // Szukamy przeciêæ z krawêdziami
+
         for (size_t i = 0; i < points.size(); i++) {
             size_t j = (i + 1) % points.size();
             int x1 = (int)points[i].x, y1 = (int)points[i].y;
             int x2 = (int)points[j].x, y2 = (int)points[j].y;
 
-            // Sprawdzamy, czy krawêdŸ [i->j] przecina poziom¹ liniê 'y'
-            // Warunek: y jest pomiêdzy y1 i y2
+            // Sprawdzamy, czy pozioma linia y przecina krawêdŸ [i->j]
             if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) {
-                // Obliczamy x przeciêcia
                 float x = (float)x1 + (float)(y - y1) * (float)(x2 - x1) / (float)(y2 - y1);
                 interX.push_back((int)x);
             }
         }
 
-        // Sortujemy wszystkie punkty przeciêcia rosn¹co
         std::sort(interX.begin(), interX.end());
 
-        // Rysujemy odcinki pomiêdzy parami punktów przeciêcia
+        // rysujemy odcinki miêdzy parami x-ów
         for (size_t i = 0; i + 1 < interX.size(); i += 2) {
             SDL_RenderDrawLine(sdlRenderer, interX[i], y, interX[i + 1], y);
         }
@@ -101,13 +98,10 @@ void Renderer::UnregularFill(const std::vector<Point2D>& points, const SDL_Color
 // ---------------------------------------------------------------------
 // KÓ£KO
 
-// Rysowanie obrysu ko³a (opcjonalne)
 void Renderer::DrawCircle(const Point2D& center, int radius, SDL_Color color) {
     SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 
-    // Prosty algorytm: k¹t od 0 do 360
-    // Mo¿na te¿ u¿yæ wersji z oœmiokrotn¹ symetri¹
-    const int segments = 360; // im wiêksze, tym g³adszy okr¹g
+    const int segments = 360;
     float step = 2.0f * 3.14159265359f / segments;
 
     for (int i = 0; i < segments; i++) {
@@ -123,11 +117,9 @@ void Renderer::DrawCircle(const Point2D& center, int radius, SDL_Color color) {
     }
 }
 
-// Wype³nione ko³o
 void Renderer::FillCircle(const Point2D& center, int radius, SDL_Color color) {
     SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 
-    // Najprostsza wersja "scan-line" od -r do +r
     for (int dy = -radius; dy <= radius; dy++) {
         int dxMax = (int)std::sqrt((float)(radius * radius - dy * dy));
         int cy = (int)center.y + dy;

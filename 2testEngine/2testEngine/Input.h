@@ -1,4 +1,3 @@
-
 #ifndef INPUT_H
 #define INPUT_H
 
@@ -16,6 +15,6 @@ private:
     static Uint8 mouseButtons;
     static const Uint8* keyboardState;
     static Point2D MausPos;
-
 };
+
 #endif

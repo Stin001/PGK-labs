@@ -1,12 +1,10 @@
-
 #ifndef ENGINE_H
 #define ENGINE_H
-#include "Primitiv.h"
-#include <vector>
-#include "Input.h"
 
-#define Max_prim  1000
 #include <SDL.h>
+#include <vector>
+#include "Point2D.h"
+#include "Primitiv.h"
 
 class Engine {
 public:
@@ -18,12 +16,25 @@ public:
     void Shutdown();
 
 private:
-    bool isRunning;
     SDL_Window* window;
     SDL_Renderer* renderer;
-  
-    std::vector<Primitive> primityw;
-    std::vector<std::vector<Point2D>> unregular;
+    bool isRunning;
+
+    // Wektory obiektów:
+    std::vector<Primitive> primityw;              // kwadraty, kó³ka itp.
+    std::vector<std::vector<Point2D>> unregular;  // nieregularne wielok¹ty
+
+    // Obs³uga przesuwania (drag & drop):
+    bool isDragging;
+    int  selectedIndex;       // który element w "primityw" jest wybrany
+    int  selectedUnregIndex;  // który wielok¹t w "unregular" jest wybrany
+    Point2D dragOffset;       // zapamiêtujemy poprzedni¹ pozycjê myszy w trakcie przeci¹gania
+
+private:
+    // Funkcje pomocnicze do wykrycia klikniêcia w dany kszta³t
+    bool IsInsideSquare(const Primitive& p, float mouseX, float mouseY);
+    bool IsInsideCircle(const Primitive& p, float mouseX, float mouseY);
+    bool IsInsideUnregular(const std::vector<Point2D>& pts, float mouseX, float mouseY);
 };
 
-#endif 
+#endif

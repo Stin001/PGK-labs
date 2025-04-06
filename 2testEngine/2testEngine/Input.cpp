@@ -1,9 +1,8 @@
-
 #include "Input.h"
 
-Uint8 Input::mouseButtons = 0;
+Uint8       Input::mouseButtons = 0;
 const Uint8* Input::keyboardState = SDL_GetKeyboardState(nullptr);
-Point2D Input::MausPos = Point2D(0, 0);
+Point2D     Input::MausPos(0, 0);
 
 bool Input::IsKeyPressed(SDL_Keycode key) {
     SDL_Scancode scancode = SDL_GetScancodeFromKey(key);
@@ -11,25 +10,27 @@ bool Input::IsKeyPressed(SDL_Keycode key) {
 }
 
 bool Input::IsMouseButtonPressed(Uint8 button) {
-    return mouseButtons & SDL_BUTTON(button);
+    return (mouseButtons & SDL_BUTTON(button)) != 0;
 }
 
 void Input::HandleEvent(const SDL_Event& event) {
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         mouseButtons |= SDL_BUTTON(event.button.button);
-          MausPos = Point2D(static_cast<float>(event.button.x), static_cast<float>(event.button.y));  // Zapisujemy pozycjê myszy
+        MausPos = Point2D(static_cast<float>(event.button.x),
+            static_cast<float>(event.button.y));
     }
     else if (event.type == SDL_MOUSEBUTTONUP) {
         mouseButtons &= ~SDL_BUTTON(event.button.button);
     }
-
+    // Wa¿ne! Aktualizowanie pozycji myszy przy ruchu:
+    else if (event.type == SDL_MOUSEMOTION) {
+        MausPos = Point2D(static_cast<float>(event.motion.x),
+            static_cast<float>(event.motion.y));
+    }
+    // Ewentualnie mo¿na te¿ obs³ugiwaæ klawiaturê w eventach klawiszy, 
+    // ale tutaj polegamy na SDL_GetKeyboardState.
 }
 
-
-
-Point2D Input::getMausPos()
-{
-
+Point2D Input::getMausPos() {
     return MausPos;
 }
-

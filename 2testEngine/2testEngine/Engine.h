@@ -6,6 +6,10 @@
 #include "Point2D.h"
 #include "Primitiv.h"
 
+struct SnakeSegment { // bez zmian
+    float x, y;
+};
+
 class Engine {
 public:
     Engine();
@@ -20,21 +24,32 @@ private:
     SDL_Renderer* renderer;
     bool isRunning;
 
-    // Wektory obiektów:
-    std::vector<Primitive> primityw;              // kwadraty, kó³ka itp.
-    std::vector<std::vector<Point2D>> unregular;  // nieregularne wielok¹ty
+    // Przed wciœniêciem spacji - stare obiekty
+    std::vector<Primitive> primityw;
+    std::vector<std::vector<Point2D>> unregular;
 
-    // Obs³uga przesuwania (drag & drop):
+    // Drag & drop
     bool isDragging;
-    int  selectedIndex;       // który element w "primityw" jest wybrany
-    int  selectedUnregIndex;  // który wielok¹t w "unregular" jest wybrany
-    Point2D dragOffset;       // zapamiêtujemy poprzedni¹ pozycjê myszy w trakcie przeci¹gania
+    int  selectedIndex;
+    int  selectedUnregIndex;
+    Point2D dragOffset;
+
+    // ----------------------------
+    // W¹¿
+    bool snakeRunning;
+    int  snakeDir;
+    int  snakeMoveCounter;
+    std::vector<SnakeSegment> snake;
+    Point2D foodPos;
 
 private:
-    // Funkcje pomocnicze do wykrycia klikniêcia w dany kszta³t
     bool IsInsideSquare(const Primitive& p, float mouseX, float mouseY);
     bool IsInsideCircle(const Primitive& p, float mouseX, float mouseY);
     bool IsInsideUnregular(const std::vector<Point2D>& pts, float mouseX, float mouseY);
+
+    void InitSnake();
+    void UpdateSnake();
+    void RenderSnake();
 };
 
 #endif

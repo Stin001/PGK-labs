@@ -3,8 +3,8 @@
 #include "Renderer.h"
 #include <iostream>
 #include <cmath>
-#include <cstdlib>  // rand, srand
-#include <ctime>    // time
+#include <cstdlib>
+#include <ctime>
 
 Engine::Engine()
     : window(nullptr), renderer(nullptr), isRunning(false),
@@ -40,17 +40,18 @@ bool Engine::Init() {
     Renderer::Init(renderer);
     isRunning = true;
 
-    srand((unsigned)time(nullptr)); // do losowania jedzenia wê¿a
+    srand((unsigned)time(nullptr));
     return true;
 }
 
-// ---------------------
-// Pomocnicze do klikniêcia w kszta³t (bez zmian)
+// ------------------------------------
+// Pomocnicze do klikniêcia w kszta³t:
 bool Engine::IsInsideSquare(const Primitive& p, float mouseX, float mouseY) {
     float px = p.position.x, py = p.position.y;
     return (mouseX >= px && mouseX <= px + p.width &&
         mouseY >= py && mouseY <= py + p.height);
 }
+
 bool Engine::IsInsideCircle(const Primitive& p, float mouseX, float mouseY) {
     float r = p.width / 2.0f;
     float dx = mouseX - p.position.x;
@@ -58,46 +59,49 @@ bool Engine::IsInsideCircle(const Primitive& p, float mouseX, float mouseY) {
     float dist2 = dx * dx + dy * dy;
     return (dist2 <= r * r);
 }
+
 bool Engine::IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my) {
     if (pts.empty()) return false;
-    float minX = pts[0].x, maxX = pts[0].x, minY = pts[0].y, maxY = pts[0].y;
+    float minX = pts[0].x, maxX = pts[0].x;
+    float minY = pts[0].y, maxY = pts[0].y;
     for (auto& pt : pts) {
-        if (pt.x < minX)minX = pt.x; if (pt.x > maxX)maxX = pt.x;
-        if (pt.y < minY)minY = pt.y; if (pt.y > maxY)maxY = pt.y;
+        if (pt.x < minX) minX = pt.x;
+        if (pt.x > maxX) maxX = pt.x;
+        if (pt.y < minY) minY = pt.y;
+        if (pt.y > maxY) maxY = pt.y;
     }
     return (mx >= minX && mx <= maxX && my >= minY && my <= maxY);
 }
-// ---------------------
 
-// ---------------------
+// ----------------------------------
 // Inicjacja wê¿a
 void Engine::InitSnake() {
     snake.clear();
-    // 3 segmenty wê¿a
+    // 3 segmenty startowe:
     snake.push_back({ 400.0f,300.0f });
     snake.push_back({ 380.0f,300.0f });
     snake.push_back({ 360.0f,300.0f });
-    snakeDir = 1; // startowo w prawo
+    snakeDir = 1; // w prawo
 
-    // Losujemy jedzenie co 20 pikseli
-    foodPos.x = float((rand() % 39) * 20);
-    foodPos.y = float((rand() % 29) * 20);
+    // Losujemy pierwsze jedzenie, unikaj¹c ramki (20 px):
+    foodPos.x = float((rand() % 38) * 20 + 20); // 20..760 (co 20 px)
+    foodPos.y = float((rand() % 28) * 20 + 20); // 20..560
 }
 
-// ---------------------
+// ----------------------------------
 // Logika wê¿a
 void Engine::UpdateSnake() {
-    // ZMIENIONE: spowolnione z 10 do 20 klatek
+    // Spowalniamy wê¿a – co 300 klatek dopiero siê przesuwa
     snakeMoveCounter++;
-    if (snakeMoveCounter < 280) return;
+    if (snakeMoveCounter < 300) return;
     snakeMoveCounter = 0;
 
-    // przesuwamy ogon
-    for (int i = int(snake.size()) - 1; i > 0; i--) {
+    // 1. Przesuwamy ogon
+    for (int i = (int)snake.size() - 1; i > 0; i--) {
         snake[i].x = snake[i - 1].x;
         snake[i].y = snake[i - 1].y;
     }
-    // przesuniêcie g³owy
+    // G³owa w zale¿noœci od kierunku
     switch (snakeDir) {
     case 0: snake[0].y -= 20; break; // UP
     case 1: snake[0].x += 20; break; // RIGHT
@@ -105,51 +109,61 @@ void Engine::UpdateSnake() {
     case 3: snake[0].x -= 20; break; // LEFT
     }
 
-    // Sprawdzamy uderzenie w œcianê (okno ma 800x600):
+    // 2. Sprawdzenie kolizji ze œcian¹
     if (snake[0].x < 0 || snake[0].x >= 800 ||
-        snake[0].y < 0 || snake[0].y >= 600) {
-        // koniec gry = koniec programu
+        snake[0].y < 0 || snake[0].y >= 600)
+    {
         isRunning = false;
         return;
     }
 
-    // Zbieranie jedzenia
-    if (std::fabs(snake[0].x - foodPos.x) < 1e-1 &&
-        std::fabs(snake[0].y - foodPos.y) < 1e-1) {
-        // dodaj segment
-        snake.push_back({ snake.back().x,snake.back().y });
-        // losuj nowe jedzenie
-        foodPos.x = float((rand() % 39) * 20);
-        foodPos.y = float((rand() % 29) * 20);
+    // 3. Sprawdzenie kolizji z samym sob¹ // DODANE
+    // (przechodzimy po segmentach cia³a, jeœli g³owa == któryœ segment -> koniec)
+    for (int i = 1; i < (int)snake.size(); i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+            isRunning = false;
+            return;
+        }
+    }
+
+    // 4. Sprawdzenie zjedzenia kó³ka (kolizja okr¹g-okr¹g)
+    float sx = snake[0].x + 10;  // œrodek g³owy
+    float sy = snake[0].y + 10;
+    float dx = sx - foodPos.x;
+    float dy = sy - foodPos.y;
+    float dist2 = dx * dx + dy * dy;
+    float radiusSum = 10.0f + 10.0f;  // 10 g³owa, 10 kó³ko
+    if (dist2 <= (radiusSum * radiusSum)) {
+        // Dodaj segment do wê¿a
+        snake.push_back({ snake.back().x, snake.back().y });
+        // Losuj nowe po³o¿enie kó³ka
+        foodPos.x = float((rand() % 38) * 20 + 20);
+        foodPos.y = float((rand() % 28) * 20 + 20);
     }
 }
 
-// ---------------------
+// ----------------------------------
 // Rysowanie wê¿a i œcian
 void Engine::RenderSnake() {
-    // Rysujemy œciany wokó³ planszy jako szare prostok¹ty
-    // górna
+    // Szare œciany
     Renderer::FillRect({ 0,0 }, 800, 20, { 128,128,128,255 });
-    // dolna
     Renderer::FillRect({ 0,580 }, 800, 20, { 128,128,128,255 });
-    // lewa
     Renderer::FillRect({ 0,0 }, 20, 600, { 128,128,128,255 });
-    // prawa
     Renderer::FillRect({ 780,0 }, 20, 600, { 128,128,128,255 });
 
-    // Jedzenie - zielone kó³ko (promieñ=10)
+    // Jedzenie
     Renderer::FillCircle(foodPos, 10, { 0,255,0,255 });
 
-    // W¹¿ – czerwone kwadraty 20×20
+    // W¹¿
     for (auto& seg : snake) {
         Renderer::FillRect({ seg.x, seg.y }, 20, 20, { 255,0,0,255 });
     }
 }
-// ---------------------
 
 void Engine::Run() {
-    InitSnake(); // przygotowanie wê¿a od razu
+    InitSnake();
     SDL_Event event;
+
     while (isRunning) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -157,14 +171,15 @@ void Engine::Run() {
             }
             Input::HandleEvent(event);
 
-            // Drag & drop tylko gdy nie uruchomiliœmy Snake
+            // Drag & drop tylko gdy Snake nie wystartowa³
             if (!snakeRunning) {
                 if (event.type == SDL_MOUSEBUTTONDOWN &&
                     event.button.button == SDL_BUTTON_LEFT)
                 {
                     Point2D mPos = Input::getMausPos();
-                    selectedIndex = -1; selectedUnregIndex = -1;
-                    for (int i = int(primityw.size()) - 1; i >= 0; i--) {
+                    selectedIndex = -1;
+                    selectedUnregIndex = -1;
+                    for (int i = (int)primityw.size() - 1; i >= 0; i--) {
                         auto& sh = primityw[i];
                         if (sh.type == PrimitiveType::KWADRAT && IsInsideSquare(sh, mPos.x, mPos.y)) {
                             selectedIndex = i; break;
@@ -174,7 +189,7 @@ void Engine::Run() {
                         }
                     }
                     if (selectedIndex < 0) {
-                        for (int i = int(unregular.size()) - 1; i >= 0; i--) {
+                        for (int i = (int)unregular.size() - 1; i >= 0; i--) {
                             if (IsInsideUnregular(unregular[i], mPos.x, mPos.y)) {
                                 selectedUnregIndex = i; break;
                             }
@@ -185,7 +200,9 @@ void Engine::Run() {
                         dragOffset = mPos;
                     }
                 }
-                else if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+                else if (event.type == SDL_MOUSEBUTTONUP &&
+                    event.button.button == SDL_BUTTON_LEFT)
+                {
                     isDragging = false;
                 }
                 else if (event.type == SDL_MOUSEMOTION && isDragging) {
@@ -194,18 +211,23 @@ void Engine::Run() {
                     float dy = currentM.y - dragOffset.y;
                     if (selectedIndex >= 0) {
                         auto& sh = primityw[selectedIndex];
-                        if (sh.type == PrimitiveType::KWADRAT || sh.type == PrimitiveType::CIRCLE) {
-                            sh.position.x += dx; sh.position.y += dy;
+                        if (sh.type == PrimitiveType::KWADRAT ||
+                            sh.type == PrimitiveType::CIRCLE) {
+                            sh.position.x += dx;
+                            sh.position.y += dy;
                         }
                     }
                     else if (selectedUnregIndex >= 0) {
                         auto& vec = unregular[selectedUnregIndex];
-                        for (auto& pt : vec) { pt.x += dx; pt.y += dy; }
+                        for (auto& pt : vec) {
+                            pt.x += dx;
+                            pt.y += dy;
+                        }
                     }
                     dragOffset = currentM;
                 }
             }
-        } // koniec SDL_PollEvent
+        } // end of while(SDL_PollEvent)
 
         // Wyjœcie ESC
         if (Input::IsKeyPressed(SDLK_ESCAPE)) {
@@ -215,32 +237,54 @@ void Engine::Run() {
         if (Input::IsKeyPressed(SDLK_SPACE) && !snakeRunning) {
             snakeRunning = true;
         }
-        // Sterowanie wê¿em strza³kami
+
+        // DODANE: blokada ruchu do ty³u
+        // ----------------------------------------
         if (snakeRunning) {
-            if (Input::IsKeyPressed(SDLK_UP))    snakeDir = 0;
-            if (Input::IsKeyPressed(SDLK_RIGHT)) snakeDir = 1;
-            if (Input::IsKeyPressed(SDLK_DOWN))  snakeDir = 2;
-            if (Input::IsKeyPressed(SDLK_LEFT))  snakeDir = 3;
+            int newDir = snakeDir;
+            // Zczytaj wciœniête strza³ki
+            if (Input::IsKeyPressed(SDLK_UP))    newDir = 0;
+            if (Input::IsKeyPressed(SDLK_RIGHT)) newDir = 1;
+            if (Input::IsKeyPressed(SDLK_DOWN))  newDir = 2;
+            if (Input::IsKeyPressed(SDLK_LEFT))  newDir = 3;
+
+            // Je¿eli newDir jest "przeciwny" do snakeDir, ignorujemy
+            // (0 <-> 2) i (1 <-> 3)
+            bool opposite =
+                ((snakeDir == 0 && newDir == 2) || (snakeDir == 2 && newDir == 0) ||
+                    (snakeDir == 1 && newDir == 3) || (snakeDir == 3 && newDir == 1));
+            if (!opposite) {
+                snakeDir = newDir;
+            }
         }
+        // ----------------------------------------
 
         SDL_RenderClear(renderer);
 
         if (!snakeRunning) {
-            // Rysowanie prymitywów
-            if (Input::IsKeyPressed(SDLK_1) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            // Rysowanie prymitywów:
+            if (Input::IsKeyPressed(SDLK_1) &&
+                Input::IsMouseButtonPressed(SDL_BUTTON_LEFT))
+            {
                 Point2D mp = Input::getMausPos();
-                primityw.push_back(Primitive(PrimitiveType::KWADRAT, mp, 30, 30, { 255,0,0,255 }));
+                primityw.push_back(
+                    Primitive(PrimitiveType::KWADRAT, mp, 30, 30, { 255,0,0,255 }));
             }
             for (auto& p : primityw) {
                 if (p.type == PrimitiveType::KWADRAT) {
                     Renderer::FillRect(p.position, p.width, p.height, p.color);
                 }
             }
-            if (Input::IsKeyPressed(SDLK_2) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            if (Input::IsKeyPressed(SDLK_2) &&
+                Input::IsMouseButtonPressed(SDL_BUTTON_LEFT))
+            {
                 Point2D mp = Input::getMausPos();
                 std::vector<Point2D> v{
-                    {mp.x,mp.y},{mp.x + 20,mp.y},
-                    {mp.x + 30,mp.y + 15},{mp.x + 15,mp.y + 30},{mp.x,mp.y + 15}
+                    {mp.x,     mp.y},
+                    {mp.x + 20, mp.y},
+                    {mp.x + 30, mp.y + 15},
+                    {mp.x + 15, mp.y + 30},
+                    {mp.x,     mp.y + 15}
                 };
                 unregular.push_back(v);
             }
@@ -248,9 +292,12 @@ void Engine::Run() {
                 Renderer::UnregularFill(points, { 255,0,0,255 });
                 Renderer::DrawUnregular(points, { 255,0,0,255 });
             }
-            if (Input::IsKeyPressed(SDLK_3) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+            if (Input::IsKeyPressed(SDLK_3) &&
+                Input::IsMouseButtonPressed(SDL_BUTTON_LEFT))
+            {
                 Point2D mp = Input::getMausPos();
-                primityw.push_back(Primitive(PrimitiveType::CIRCLE, mp, 30, 0, { 255,0,0,255 }));
+                primityw.push_back(
+                    Primitive(PrimitiveType::CIRCLE, mp, 30, 0, { 255,0,0,255 }));
             }
             for (auto& p : primityw) {
                 if (p.type == PrimitiveType::CIRCLE) {
@@ -260,7 +307,7 @@ void Engine::Run() {
             }
         }
         else {
-            // Obs³uga Snake
+            // Aktualizacja i rysowanie Snake
             UpdateSnake();
             RenderSnake();
         }

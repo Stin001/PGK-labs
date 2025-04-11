@@ -89,7 +89,7 @@ void Engine::InitSnake() {
 void Engine::UpdateSnake() {
     // ZMIENIONE: spowolnione z 10 do 20 klatek
     snakeMoveCounter++;
-    if (snakeMoveCounter < 200) return;
+    if (snakeMoveCounter < 280) return;
     snakeMoveCounter = 0;
 
     // przesuwamy ogon

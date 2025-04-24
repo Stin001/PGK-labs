@@ -5,8 +5,9 @@
 #include <vector>
 #include "Point2D.h"
 #include "Primitiv.h"
-#include "Snake.h"        // <<–– gra w osobnych plikach
+#include "Snake.h"
 
+// ??????????????????????????????????????????????????????????????
 class Engine {
 public:
     Engine();
@@ -17,34 +18,33 @@ public:
     void Shutdown();
 
 private:
-    // ----------------------------------------------------------------
-    //  Zasoby SDL i stan g³ównej pêtli
+    // SDL
     SDL_Window* window;
     SDL_Renderer* renderer;
-    bool   isRunning;
+    bool          isRunning{ false };
 
-    // ----------------------------------------------------------------
-    //  Obiekty do rysowania przed startem Snake
-    std::vector<Primitive>           primityw;
-    std::vector<std::vector<Point2D>> unregular;
+    // Rysowane obiekty
+    std::vector<Primitive>            primityw;    // kwadraty + kó³ka
+    std::vector<std::vector<Point2D>> unregular;   // nieregularne wielok¹ty
 
-    // ----------------------------------------------------------------
-    //  Drag & drop prymitywów
-    bool    isDragging;
-    int     selectedIndex;
-    int     selectedUnregIndex;
-    Point2D dragOffset;
+    // Drag & drop
+    bool    isDragging{ false };
+    int     selectedIndex{ -1 };
+    int     selectedUnregIndex{ -1 };
+    Point2D dragOffset{};
 
-    // ----------------------------------------------------------------
-    //  Gra „Snake” w oddzielnej klasie
-    bool       snakeRunning;   // flaga startu gry (Space)
-    SnakeGame  snake;          // instancja gry
+    // „Tryb wstawiania” – ustawiany klawiszem 1 / 2 / 3
+    enum class CreateMode { NONE, KWADRAT, UNREGULAR, CIRCLE };
+    CreateMode createMode{ CreateMode::NONE };
 
-    // ----------------------------------------------------------------
-    //  Funkcje pomocnicze silnika (kolizje dla drag-and-drop)
-    bool IsInsideSquare(const Primitive& p, float mouseX, float mouseY);
-    bool IsInsideCircle(const Primitive& p, float mouseX, float mouseY);
-    bool IsInsideUnregular(const std::vector<Point2D>& pts, float mouseX, float mouseY);
+    // Gra Snake
+    bool       snakeRunning{ false };
+    SnakeGame  snake;
+
+    // Pomocnicze
+    bool IsInsideSquare(const Primitive& p, float mx, float my);
+    bool IsInsideCircle(const Primitive& p, float mx, float my);
+    bool IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my);
 };
 
 #endif

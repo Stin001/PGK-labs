@@ -1,2 +1,4 @@
 ﻿  Engine.cpp
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(146,52): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(147,52): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   2testEngine.vcxproj -> D:\Visual Studio Community Projects\PGK-labs\2testEngine\x64\Debug\2testEngine.exe

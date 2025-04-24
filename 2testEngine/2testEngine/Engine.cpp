@@ -6,6 +6,18 @@
 #include <cstdlib>
 #include <ctime>
 
+// KONSTANTY PLANSZY / SNAKE
+static constexpr int CELL = 20;   // rozmiar kratki
+static constexpr int FRAME = 20;   // gruboœæ szarej ramki
+static constexpr int COLS = 38;   // 780-20 / 20
+static constexpr int ROWS = 28;   // 580-20 / 20
+static constexpr int WIDTH = 800;
+static constexpr int HEIGHT = 600;
+static constexpr int FOOD_R = 8;    // promieñ kó³ka
+static const SDL_Color COL_A{ 35, 35, 35, 255 }; // kolory szachownicy
+static const SDL_Color COL_B{ 45, 45, 45, 255 };
+// -------------------------------------------------
+
 Engine::Engine()
     : window(nullptr), renderer(nullptr), isRunning(false),
     isDragging(false), selectedIndex(-1), selectedUnregIndex(-1),
@@ -110,8 +122,8 @@ void Engine::UpdateSnake() {
     }
 
     // 2. Sprawdzenie kolizji ze œcian¹
-    if (snake[0].x < 0 || snake[0].x >= 800 ||
-        snake[0].y < 0 || snake[0].y >= 600)
+    if (snake[0].x < 20 || snake[0].x >= 780 ||
+        snake[0].y < 20 || snake[0].y >= 580)
     {
         isRunning = false;
         return;
@@ -127,37 +139,39 @@ void Engine::UpdateSnake() {
     }
 
     // 4. Sprawdzenie zjedzenia kó³ka (kolizja okr¹g-okr¹g)
-    float sx = snake[0].x + 10;  // œrodek g³owy
-    float sy = snake[0].y + 10;
-    float dx = sx - foodPos.x;
-    float dy = sy - foodPos.y;
-    float dist2 = dx * dx + dy * dy;
-    float radiusSum = 10.0f + 10.0f;  // 10 g³owa, 10 kó³ko
-    if (dist2 <= (radiusSum * radiusSum)) {
-        // Dodaj segment do wê¿a
-        snake.push_back({ snake.back().x, snake.back().y });
-        // Losuj nowe po³o¿enie kó³ka
-        foodPos.x = float((rand() % 38) * 20 + 20);
-        foodPos.y = float((rand() % 28) * 20 + 20);
+    float dx = (snake[0].x + CELL / 2) - foodPos.x,
+        dy = (snake[0].y + CELL / 2) - foodPos.y;
+    if (dx * dx + dy * dy <= (CELL / 2 + FOOD_R) * (CELL / 2 + FOOD_R)) {      // ZMIANA
+        snake.push_back(snake.back());
+        foodPos.x = FRAME + (rand() % COLS) * CELL + CELL / 2;
+        foodPos.y = FRAME + (rand() % ROWS) * CELL + CELL / 2;
     }
 }
 
 // ----------------------------------
 // Rysowanie wê¿a i œcian
 void Engine::RenderSnake() {
-    // Szare œciany
-    Renderer::FillRect({ 0,0 }, 800, 20, { 128,128,128,255 });
-    Renderer::FillRect({ 0,580 }, 800, 20, { 128,128,128,255 });
-    Renderer::FillRect({ 0,0 }, 20, 600, { 128,128,128,255 });
-    Renderer::FillRect({ 780,0 }, 20, 600, { 128,128,128,255 });
 
+    // SZACHOWNICA – t³o
+    for (int r = 0; r < ROWS; ++r)
+        for (int c = 0; c < COLS; ++c) {
+            SDL_Color col = ((r + c) & 1) ? COL_A : COL_B;
+            Renderer::FillRect({ float(FRAME + c * CELL),float(FRAME + r * CELL) },
+                CELL, CELL, col);
+        }
+
+    // szara ramka
+    Renderer::FillRect({ 0,0 }, WIDTH, FRAME, { 128,128,128,255 });
+    Renderer::FillRect({ 0,HEIGHT - FRAME }, WIDTH, FRAME, { 128,128,128,255 });
+    Renderer::FillRect({ 0,0 }, FRAME, HEIGHT, { 128,128,128,255 });
+    Renderer::FillRect({ WIDTH - FRAME,0 }, FRAME, HEIGHT, { 128,128,128,255 });
+    
     // Jedzenie
     Renderer::FillCircle(foodPos, 10, { 0,255,0,255 });
 
-    // W¹¿
-    for (auto& seg : snake) {
-        Renderer::FillRect({ seg.x, seg.y }, 20, 20, { 255,0,0,255 });
-    }
+    // w¹¿
+    for (auto& s : snake)
+        Renderer::FillRect({ s.x,s.y }, CELL, CELL, { 255,0,0,255 });
 }
 
 void Engine::Run() {

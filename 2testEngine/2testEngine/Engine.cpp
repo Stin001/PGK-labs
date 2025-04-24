@@ -6,17 +6,17 @@
 #include <cstdlib>
 #include <ctime>
 
-// KONSTANTY PLANSZY / SNAKE
-static constexpr int CELL = 20;   // rozmiar kratki
-static constexpr int FRAME = 20;   // gruboœæ szarej ramki
-static constexpr int COLS = 38;   // 780-20 / 20
-static constexpr int ROWS = 28;   // 580-20 / 20
+// ------------------- KONSTANTY PLANSZY -------------------
+static constexpr int CELL = 30;         // rozmiar jednej kratki   (was 20)
+static constexpr int FRAME = 20;         // gruboœæ szarej ramki
 static constexpr int WIDTH = 800;
 static constexpr int HEIGHT = 600;
-static constexpr int FOOD_R = 8;    // promieñ kó³ka
-static const SDL_Color COL_A{ 35, 35, 35, 255 }; // kolory szachownicy
-static const SDL_Color COL_B{ 45, 45, 45, 255 };
-// -------------------------------------------------
+static constexpr int COLS = (WIDTH - 2 * FRAME) / CELL;  // 25 kolumn
+static constexpr int ROWS = (HEIGHT - 2 * FRAME) / CELL;  // 18 wierszy
+static constexpr int FOOD_R = 12;         // promieñ kó³ka           (was  8/10)
+static const SDL_Color COL_A{ 35, 35, 35, 255 }; // kolory pól
+static const SDL_Color COL_B{ 60, 60, 60, 255 };
+// ---------------------------------------------------------
 
 Engine::Engine()
     : window(nullptr), renderer(nullptr), isRunning(false),
@@ -37,9 +37,8 @@ bool Engine::Init() {
         std::cerr << "B³¹d inicjalizacji SDL: " << SDL_GetError() << std::endl;
         return false;
     }
-    window = SDL_CreateWindow("Silnik 2D",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        800, 600, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Silnik 2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "B³¹d tworzenia okna: " << SDL_GetError() << std::endl;
         return false;
@@ -89,15 +88,15 @@ bool Engine::IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float 
 // Inicjacja wê¿a
 void Engine::InitSnake() {
     snake.clear();
-    // 3 segmenty startowe:
-    snake.push_back({ 400.0f,300.0f });
-    snake.push_back({ 380.0f,300.0f });
-    snake.push_back({ 360.0f,300.0f });
-    snakeDir = 1; // w prawo
+    // centrowanie na planszy
+    const float startX = FRAME + (COLS / 2) * CELL;   // 20 + 12·30 = 380
+    const float startY = FRAME + (ROWS / 2) * CELL;   // 20 +  9·30 = 290
+    snake = { {startX,           startY},
+              {startX - CELL,    startY},
+              {startX - 2 * CELL,  startY} };
 
-    // Losujemy pierwsze jedzenie, unikaj¹c ramki (20 px):
-    foodPos.x = float((rand() % 38) * 20 + 20); // 20..760 (co 20 px)
-    foodPos.y = float((rand() % 28) * 20 + 20); // 20..560
+    foodPos.x = FRAME + (rand() % COLS) * CELL + CELL / 2;
+    foodPos.y = FRAME + (rand() % ROWS) * CELL + CELL / 2;
 }
 
 // ----------------------------------
@@ -115,33 +114,29 @@ void Engine::UpdateSnake() {
     }
     // G³owa w zale¿noœci od kierunku
     switch (snakeDir) {
-    case 0: snake[0].y -= 20; break; // UP
-    case 1: snake[0].x += 20; break; // RIGHT
-    case 2: snake[0].y += 20; break; // DOWN
-    case 3: snake[0].x -= 20; break; // LEFT
+    case 0: snake[0].y -= CELL; break; // UP   (-30 px)
+    case 1: snake[0].x += CELL; break; // RIGHT(+30 px)
+    case 2: snake[0].y += CELL; break; // DOWN (+30 px)
+    case 3: snake[0].x -= CELL; break; // LEFT (-30 px)
     }
 
     // 2. Sprawdzenie kolizji ze œcian¹
-    if (snake[0].x < 20 || snake[0].x >= 780 ||
-        snake[0].y < 20 || snake[0].y >= 580)
-    {
-        isRunning = false;
-        return;
+    if (snake[0].x < FRAME || snake[0].x >= FRAME + COLS * CELL ||
+        snake[0].y < FRAME || snake[0].y >= FRAME + ROWS * CELL) {
+        isRunning = false; return;
     }
 
-    // 3. Sprawdzenie kolizji z samym sob¹ // DODANE
-    // (przechodzimy po segmentach cia³a, jeœli g³owa == któryœ segment -> koniec)
-    for (int i = 1; i < (int)snake.size(); i++) {
+    // 3. Sprawdzenie kolizji z samym sob¹
+    for (size_t i = 1; i < snake.size(); ++i)
         if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
-            isRunning = false;
-            return;
+            isRunning = false; return;
         }
-    }
 
     // 4. Sprawdzenie zjedzenia kó³ka (kolizja okr¹g-okr¹g)
-    float dx = (snake[0].x + CELL / 2) - foodPos.x,
-        dy = (snake[0].y + CELL / 2) - foodPos.y;
-    if (dx * dx + dy * dy <= (CELL / 2 + FOOD_R) * (CELL / 2 + FOOD_R)) {      // ZMIANA
+    float dx = (snake[0].x + CELL / 2) - foodPos.x;
+    float dy = (snake[0].y + CELL / 2) - foodPos.y;
+    const float sumR = CELL / 2 + FOOD_R;
+    if (dx * dx + dy * dy <= sumR * sumR) {
         snake.push_back(snake.back());
         foodPos.x = FRAME + (rand() % COLS) * CELL + CELL / 2;
         foodPos.y = FRAME + (rand() % ROWS) * CELL + CELL / 2;
@@ -156,7 +151,7 @@ void Engine::RenderSnake() {
     for (int r = 0; r < ROWS; ++r)
         for (int c = 0; c < COLS; ++c) {
             SDL_Color col = ((r + c) & 1) ? COL_A : COL_B;
-            Renderer::FillRect({ float(FRAME + c * CELL),float(FRAME + r * CELL) },
+            Renderer::FillRect({ float(FRAME + c * CELL), float(FRAME + r * CELL) },
                 CELL, CELL, col);
         }
 
@@ -167,7 +162,7 @@ void Engine::RenderSnake() {
     Renderer::FillRect({ WIDTH - FRAME,0 }, FRAME, HEIGHT, { 128,128,128,255 });
     
     // Jedzenie
-    Renderer::FillCircle(foodPos, 10, { 0,255,0,255 });
+    Renderer::FillCircle(foodPos, FOOD_R, { 0,255,0,255 });
 
     // w¹¿
     for (auto& s : snake)

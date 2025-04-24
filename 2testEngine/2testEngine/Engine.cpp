@@ -1,32 +1,36 @@
 ﻿#include "Engine.h"
 #include "Input.h"
 #include "Renderer.h"
-#include "Snake.h"           // << korzystamy z gry w osobnym pliku
+#include "Snake.h"
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
+#include <algorithm>    // std::min / max          ← NEW
 
-// ───────────────────────── PARAMETRY OKNA ────────────────────────────
-static constexpr int WIN_W = 800;
-static constexpr int WIN_H = 600;
+// ───────────────────────── ustawienia okna ───────────────────────────
+static constexpr int   WIN_W = 800;
+static constexpr int   WIN_H = 600;
+static constexpr float ROT_STEP = 5.f;     // stopnie na pojedyncze naciśnięcie
+static constexpr float SCALE_UP = 1.10f;   // powiększ
+static constexpr float SCALE_DN = 0.90f;   // pomniejsz
 // ──────────────────────────────────────────────────────────────────────
 
 Engine::Engine()
     : window(nullptr), renderer(nullptr), isRunning(false),
     isDragging(false), selectedIndex(-1), selectedUnregIndex(-1),
-    dragOffset(0, 0),
-    snakeRunning(false)                         // tylko flaga uruchomienia
-{
+    dragOffset(0, 0), snakeRunning(false) {
 }
 
 Engine::~Engine() { Shutdown(); }
 
 bool Engine::Init()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
-        std::cerr << "SDL init error: " << SDL_GetError() << std::endl;
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+        std::cerr << "SDL init error: " << SDL_GetError() << '\n';
         return false;
     }
+
     window = SDL_CreateWindow("Silnik 2D",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WIN_W, WIN_H, SDL_WINDOW_SHOWN);
@@ -36,26 +40,34 @@ bool Engine::Init()
     if (!renderer) { std::cerr << "Renderer error\n"; return false; }
 
     Renderer::Init(renderer);
-    std::srand((unsigned)std::time(nullptr));
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
     isRunning = true;
     return true;
 }
 
-// ───────────────────── pomocnicze testy kolizji do drag&drop ─────────
-bool Engine::IsInsideSquare(const Primitive& p, float mx, float my) {
+// ─────────────────────────— kolizje pomocnicze —──────────────────────
+bool Engine::IsInsideSquare(const Primitive& p, float mx, float my)
+{
     return (mx >= p.position.x && mx <= p.position.x + p.width &&
         my >= p.position.y && my <= p.position.y + p.height);
 }
-bool Engine::IsInsideCircle(const Primitive& p, float mx, float my) {
-    float r = p.width / 2.0f, dx = mx - p.position.x, dy = my - p.position.y;
+
+bool Engine::IsInsideCircle(const Primitive& p, float mx, float my)
+{
+    float r = p.width * 0.5f;
+    float dx = mx - p.position.x;
+    float dy = my - p.position.y;
     return dx * dx + dy * dy <= r * r;
 }
-bool Engine::IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my) {
+
+bool Engine::IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my)
+{
     if (pts.empty()) return false;
-    float minx = pts[0].x, maxx = pts[0].x, miny = pts[0].y, maxy = pts[0].y;
-    for (const auto& q : pts) {
-        if (q.x < minx)minx = q.x; if (q.x > maxx)maxx = q.x;
-        if (q.y < miny)miny = q.y; if (q.y > maxy)maxy = q.y;
+    float minx = pts[0].x, maxx = pts[0].x;
+    float miny = pts[0].y, maxy = pts[0].y;
+    for (auto& q : pts) {
+        minx = std::min(minx, q.x);  maxx = std::max(maxx, q.x);
+        miny = std::min(miny, q.y);  maxy = std::max(maxy, q.y);
     }
     return (mx >= minx && mx <= maxx && my >= miny && my <= maxy);
 }
@@ -66,110 +78,156 @@ void Engine::Run()
     SDL_Event ev;
 
     while (isRunning) {
-        // ========== Zdarzenia SDL ==========
+        // ────────────── obsługa zdarzeń SDL ──────────────
         while (SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT) isRunning = false;
             Input::HandleEvent(ev);
 
-            // ─── drag & drop figur zanim wystartuje Snake ───
-            if (!snakeRunning) {
-                if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
+            if (!snakeRunning) {                    // drag-&-drop figur
+                if (ev.type == SDL_MOUSEBUTTONDOWN &&
+                    ev.button.button == SDL_BUTTON_LEFT)
+                {
                     Point2D m = Input::getMausPos();
                     selectedIndex = selectedUnregIndex = -1;
 
-                    // sprawdź kwadraty / kółka
+                    // najpierw kwadraty / kółka
                     for (int i = int(primityw.size()) - 1; i >= 0; --i) {
                         auto& sh = primityw[i];
-                        if (sh.type == PrimitiveType::KWADRAT && IsInsideSquare(sh, m.x, m.y)) {
+                        if ((sh.type == PrimitiveType::KWADRAT && IsInsideSquare(sh, m.x, m.y)) ||
+                            (sh.type == PrimitiveType::CIRCLE && IsInsideCircle(sh, m.x, m.y)))
+                        {
                             selectedIndex = i; break;
                         }
-                        else
-                            if (sh.type == PrimitiveType::CIRCLE && IsInsideCircle(sh, m.x, m.y)) {
-                                selectedIndex = i; break;
-                            }
                     }
-                    // sprawdź wielokąty nieregularne
-                    if (selectedIndex < 0) {
-                        for (int i = int(unregular.size()) - 1; i >= 0; --i) {
-                            if (IsInsideUnregular(unregular[i], m.x, m.y)) {
+                    // potem wielokąty
+                    if (selectedIndex < 0)
+                        for (int i = int(unregular.size()) - 1; i >= 0; --i)
+                            if (IsInsideUnregular(unregular[i], m.x, m.y))
+                            {
                                 selectedUnregIndex = i; break;
                             }
-                        }
-                    }
+
                     if (selectedIndex >= 0 || selectedUnregIndex >= 0) {
-                        isDragging = true; dragOffset = m;
+                        isDragging = true;
+                        dragOffset = m;
                     }
                 }
-                else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT) {
+                else if (ev.type == SDL_MOUSEBUTTONUP &&
+                    ev.button.button == SDL_BUTTON_LEFT)
+                {
                     isDragging = false;
                 }
-                else if (ev.type == SDL_MOUSEMOTION && isDragging) {
+                else if (ev.type == SDL_MOUSEMOTION && isDragging) {   // samo przesuwanie
                     Point2D cur = Input::getMausPos();
-                    float dx = cur.x - dragOffset.x;
-                    float dy = cur.y - dragOffset.y;
+                    float   dx = cur.x - dragOffset.x;
+                    float   dy = cur.y - dragOffset.y;
 
-                    if (selectedIndex >= 0) {
-                        auto& sh = primityw[selectedIndex];
-                        sh.position.x += dx; sh.position.y += dy;
-                    }
-                    else if (selectedUnregIndex >= 0) {
-                        for (auto& pt : unregular[selectedUnregIndex]) {
-                            pt.x += dx; pt.y += dy;
-                        }
-                    }
+                    if (selectedIndex >= 0)            // kwadrat lub koło
+                        primityw[selectedIndex].position.translate(dx, dy);
+                    else if (selectedUnregIndex >= 0)  // wielokąt
+                        for (auto& p : unregular[selectedUnregIndex]) p.translate(dx, dy);
+
                     dragOffset = cur;
                 }
             }
-            // ────────────────────────────────────────────────
         }
 
-        // ========== logika silnika ==========
+        // ────────────── logika silnika ──────────────
         if (Input::IsKeyPressed(SDLK_ESCAPE)) isRunning = false;
-        if (Input::IsKeyPressed(SDLK_SPACE) && !snakeRunning) {
-            snakeRunning = true;   // start gry
+        if (!snakeRunning && Input::IsKeyPressed(SDLK_SPACE)) snakeRunning = true;
+
+        // ───── przekształcenia (rotacja / skalowanie) ─────
+        if (!snakeRunning && (selectedIndex >= 0 || selectedUnregIndex >= 0))
+        {
+            int   rotDir = 0;
+            if (Input::IsKeyPressed(SDLK_q)) rotDir = -1;
+            if (Input::IsKeyPressed(SDLK_e)) rotDir = +1;
+
+            float scale = 1.0f;
+            if (Input::IsKeyPressed(SDLK_z)) scale = SCALE_DN;
+            if (Input::IsKeyPressed(SDLK_x)) scale = SCALE_UP;
+
+            if (rotDir || scale != 1.0f) {
+                // === kwadrat / koło =========================================================
+                if (selectedIndex >= 0) {
+                    auto& sh = primityw[selectedIndex];
+
+                    if (scale != 1.0f) {
+                        if (sh.type == PrimitiveType::KWADRAT) {       // skalowanie względem środka
+                            Point2D c{ sh.position.x + sh.width * 0.5f,
+                                       sh.position.y + sh.height * 0.5f };
+                            sh.width = int(sh.width * scale);
+                            sh.height = int(sh.height * scale);
+                            sh.position.x = c.x - sh.width * 0.5f;
+                            sh.position.y = c.y - sh.height * 0.5f;
+                        }
+                        else if (sh.type == PrimitiveType::CIRCLE)
+                            sh.width = int(sh.width * scale);          // średnica
+                    }
+                    // (obrót pomijamy – nie ma sensu dla okręgu/kwadratu „z bitmapy”)
+                }
+                // === wielokąt nieregularny ===================================================
+                else {
+                    auto& poly = unregular[selectedUnregIndex];
+
+                    // centroid
+                    Point2D c{ 0,0 };
+                    for (auto& p : poly) { c.x += p.x; c.y += p.y; }
+                    c.x /= poly.size();  c.y /= poly.size();
+
+                    if (rotDir)
+                        for (auto& p : poly) p = p.rotated(rotDir * ROT_STEP, c);
+                    if (scale != 1.0f)
+                        for (auto& p : poly) p = p.scaled(scale, scale, c);
+                }
+            }
         }
 
-        // Sterowanie wężem i logika gry
+        // ────────────── logika gry Snake ──────────────
         if (snakeRunning) {
-            snake.HandleInput();   // strzałki + blokada zawracania
-            snake.Update();        // ruch, kolizje, jedzenie
-            if (!snake.IsAlive()) isRunning = false; // zakończ program po kolizji
+            snake.HandleInput();
+            snake.Update();
+            if (!snake.IsAlive()) isRunning = false;
         }
 
-        // ========== Rendering ==========
+        // ────────────── rendering ──────────────
         SDL_RenderClear(renderer);
 
         if (!snakeRunning) {
-            // ---------------- rysowanie prymitywów -------------
-            if (Input::IsKeyPressed(SDLK_1) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
-                Point2D m = Input::getMausPos();
-                primityw.push_back(Primitive(PrimitiveType::KWADRAT, m, 30, 30, { 255,0,0,255 }));
-            }
-            for (const auto& p : primityw)
-                if (p.type == PrimitiveType::KWADRAT)
-                    Renderer::FillRect(p.position, p.width, p.height, p.color);
+            // tworzenie nowych figur
+            if (Input::IsKeyPressed(SDLK_1) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT))
+                primityw.emplace_back(PrimitiveType::KWADRAT, Input::getMausPos(),
+                    30, 30, SDL_Color{ 255,0,0,255 });
 
             if (Input::IsKeyPressed(SDLK_2) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
                 Point2D m = Input::getMausPos();
-                unregular.push_back({ {m.x,m.y},{m.x + 20,m.y},{m.x + 30,m.y + 15},
-                                      {m.x + 15,m.y + 30},{m.x,m.y + 15} });
-            }
-            for (const auto& v : unregular) {
-                Renderer::UnregularFill(v, { 255,0,0,255 });
-                Renderer::DrawUnregular(v, { 255,0,0,255 });
+                unregular.push_back({ {m.x,m.y}, {m.x + 20,m.y},
+                                      {m.x + 30,m.y + 15}, {m.x + 15,m.y + 30},
+                                      {m.x,  m.y + 15} });
             }
 
-            if (Input::IsKeyPressed(SDLK_3) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
-                Point2D m = Input::getMausPos();
-                primityw.push_back(Primitive(PrimitiveType::CIRCLE, m, 30, 0, { 255,0,0,255 }));
+            if (Input::IsKeyPressed(SDLK_3) && Input::IsMouseButtonPressed(SDL_BUTTON_LEFT))
+                primityw.emplace_back(PrimitiveType::CIRCLE, Input::getMausPos(),
+                    30, 0, SDL_Color{ 255,0,0,255 });
+
+            // rysuj kwadraty
+            for (auto& p : primityw)
+                if (p.type == PrimitiveType::KWADRAT)
+                    Renderer::FillRect(p.position, p.width, p.height, p.color);
+
+            // rysuj wielokąty
+            for (auto& v : unregular) {
+                Renderer::UnregularFill(v, SDL_Color{ 255,0,0,255 });
+                Renderer::DrawUnregular(v, SDL_Color{ 255,0,0,255 });
             }
-            for (const auto& p : primityw)
+
+            // rysuj kółka
+            for (auto& p : primityw)
                 if (p.type == PrimitiveType::CIRCLE)
                     Renderer::FillCircle(p.position, p.width / 2, p.color);
-            // ----------------------------------------------------
         }
         else {
-            snake.Render();        // rysuje tło-szachownicę, węża i kółko
+            snake.Render();
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);

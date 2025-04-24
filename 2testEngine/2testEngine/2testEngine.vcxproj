@@ -140,6 +140,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Snake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitmapAnimac.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Point2D.h" />
     <ClInclude Include="Primitiv.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

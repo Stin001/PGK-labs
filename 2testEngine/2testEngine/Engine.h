@@ -5,10 +5,7 @@
 #include <vector>
 #include "Point2D.h"
 #include "Primitiv.h"
-
-struct SnakeSegment { // bez zmian
-    float x, y;
-};
+#include "Snake.h"        // <<–– gra w osobnych plikach
 
 class Engine {
 public:
@@ -20,36 +17,34 @@ public:
     void Shutdown();
 
 private:
+    // ----------------------------------------------------------------
+    //  Zasoby SDL i stan g³ównej pêtli
     SDL_Window* window;
     SDL_Renderer* renderer;
-    bool isRunning;
+    bool   isRunning;
 
-    // Przed wciœniêciem spacji - stare obiekty
-    std::vector<Primitive> primityw;
+    // ----------------------------------------------------------------
+    //  Obiekty do rysowania przed startem Snake
+    std::vector<Primitive>           primityw;
     std::vector<std::vector<Point2D>> unregular;
 
-    // Drag & drop
-    bool isDragging;
-    int  selectedIndex;
-    int  selectedUnregIndex;
+    // ----------------------------------------------------------------
+    //  Drag & drop prymitywów
+    bool    isDragging;
+    int     selectedIndex;
+    int     selectedUnregIndex;
     Point2D dragOffset;
 
-    // ----------------------------
-    // W¹¿
-    bool snakeRunning;
-    int  snakeDir;
-    int  snakeMoveCounter;
-    std::vector<SnakeSegment> snake;
-    Point2D foodPos;
+    // ----------------------------------------------------------------
+    //  Gra „Snake” w oddzielnej klasie
+    bool       snakeRunning;   // flaga startu gry (Space)
+    SnakeGame  snake;          // instancja gry
 
-private:
+    // ----------------------------------------------------------------
+    //  Funkcje pomocnicze silnika (kolizje dla drag-and-drop)
     bool IsInsideSquare(const Primitive& p, float mouseX, float mouseY);
     bool IsInsideCircle(const Primitive& p, float mouseX, float mouseY);
     bool IsInsideUnregular(const std::vector<Point2D>& pts, float mouseX, float mouseY);
-
-    void InitSnake();
-    void UpdateSnake();
-    void RenderSnake();
 };
 
 #endif

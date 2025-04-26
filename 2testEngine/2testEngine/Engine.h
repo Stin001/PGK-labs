@@ -1,4 +1,4 @@
-#ifndef ENGINE_H
+Ôªø#ifndef ENGINE_H
 #define ENGINE_H
 
 #include <SDL.h>
@@ -6,8 +6,8 @@
 #include "Point2D.h"
 #include "Primitiv.h"
 #include "Snake.h"
+#include "BitmapAnimac.h"            // ‚Üê dodane
 
-// ??????????????????????????????????????????????????????????????
 class Engine {
 public:
     Engine();
@@ -18,30 +18,33 @@ public:
     void Shutdown();
 
 private:
-    // SDL
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    SDL_Window* window{};
+    SDL_Renderer* renderer{};
     bool          isRunning{ false };
 
-    // Rysowane obiekty
-    std::vector<Primitive>            primityw;    // kwadraty + kÛ≥ka
-    std::vector<std::vector<Point2D>> unregular;   // nieregularne wielokπty
+    // prymitywy
+    std::vector<Primitive>            primityw;
+    std::vector<std::vector<Point2D>> unregular;
 
-    // Drag & drop
+    // bitmapy
+    struct Sprite { Bitmap bmp; Point2D pos; };
+    std::vector<Sprite> sprites;      // ‚Üê nowy kontener
+
+    // przeciƒÖganie
     bool    isDragging{ false };
     int     selectedIndex{ -1 };
     int     selectedUnregIndex{ -1 };
     Point2D dragOffset{};
 
-    // ÑTryb wstawianiaî ñ ustawiany klawiszem 1 / 2 / 3
-    enum class CreateMode { NONE, KWADRAT, UNREGULAR, CIRCLE };
+    // tryb wstawiania 1/2/3/4
+    enum class CreateMode { NONE, KWADRAT, UNREGULAR, CIRCLE, BITMAP };
     CreateMode createMode{ CreateMode::NONE };
 
-    // Gra Snake
+    // Snake
     bool       snakeRunning{ false };
     SnakeGame  snake;
 
-    // Pomocnicze
+    // kolizje
     bool IsInsideSquare(const Primitive& p, float mx, float my);
     bool IsInsideCircle(const Primitive& p, float mx, float my);
     bool IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my);

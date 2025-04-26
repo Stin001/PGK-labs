@@ -142,6 +142,11 @@ void Renderer::FillRectRot(const Point2D& pos, int w, int h,
     };
     for (auto& p : pts)
         p = p.rotated(angleDeg, c);
+
+    // ——— WYPE£NIJ œrodek obróconego kwadratu ———
+    UnregularFill({ pts[0], pts[1], pts[2], pts[3] }, col);
+
+    // rysuj kontur
     for (int i = 0; i < 4; ++i) {
         auto& a = pts[i];
         auto& b = pts[(i + 1) & 3];

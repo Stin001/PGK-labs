@@ -93,25 +93,21 @@ void Engine::Run()
                 if (rotDir || scale != 1.f) {
                     if (selectedIndex >= 0) {
                         auto& sh = primityw[selectedIndex];
-                        if (scale != 1.f) {
-                            int newD = int(sh.width * scale);
-                            if (newD >= MIN_SIZE)
-                                sh.width = newD;
-                        }
-                            /* obrót omiń */
-                            // — skalowanie z ROUND i zawsze pozwól powiększać
-                            if (scale != 1.f) {
-                            int old = sh.width;
-                            int n = int(std::round(old * scale));        // ← użyj round()
-                            if (scale > 1.f || n >= MIN_SIZE) {
-                                sh.width = std::max(n, MIN_SIZE);
-                                if (sh.type == PrimitiveType::KWADRAT)
-                                     sh.height = std::max(int(std::round(sh.height * scale)), MIN_SIZE); 
-                            }
-                        }
-                            // — obrót Q/E
-                            if (rotDir) {
+
+                        // — obrót Q/E
+                        if (rotDir) {
                             sh.angle = std::fmod(sh.angle + rotDir * ROT_STEP + 360.f, 360.f);
+                        }
+
+                        // — skalowanie Z/X (pomniejszaj i powiększaj od MIN_SIZE)
+                        if (scale != 1.f) {
+                            int oldW = sh.width;
+                            int newW = int(std::round(oldW * scale));
+                            if (scale > 1.f || newW >= MIN_SIZE) {
+                                sh.width = std::max(newW, MIN_SIZE);
+                                if (sh.type == PrimitiveType::KWADRAT)
+                                    sh.height = sh.width;    // ← wymuś kwadratową proporcję
+                            }
                         }
                     }
 

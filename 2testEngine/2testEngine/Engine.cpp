@@ -201,11 +201,15 @@ void Engine::Run()
 
         // ── pozostała logika (esc, snake itd.) ──
         if (Input::IsKeyPressed(SDLK_ESCAPE)) isRunning = false;
-        if (!snakeRunning && Input::IsKeyPressed(SDLK_SPACE)) snakeRunning = true;
-
+        if (!snakeRunning && Input::IsKeyPressed(SDLK_SPACE)) {
+            snake.Restart();
+            snakeRunning = true;
+        }
         if (snakeRunning) {
             snake.HandleInput(); snake.Update();
-            if (!snake.IsAlive()) isRunning = false;
+            if (!snake.IsAlive()) {    
+                snakeRunning = false;  // wracamy do edytora prymitywów
+            }
         }
 
         // ─────────── RENDER ───────────

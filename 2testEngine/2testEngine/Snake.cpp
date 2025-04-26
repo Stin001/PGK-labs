@@ -27,8 +27,21 @@ void SnakeGame::Restart()
 // ──────────────────────────────────────────────────────────────────────
 void SnakeGame::spawnFood()
 {
-    foodPos.x = float(S_FRAME + (std::rand() % S_COLS) * S_CELL + S_CELL / 2);
-    foodPos.y = float(S_FRAME + (std::rand() % S_ROWS) * S_CELL + S_CELL / 2);
+    /*  Losuj tak długo, aż wybrana kratka nie zostanie zajęta przez
+        żaden segment węża (sprawdzamy współrzędne kratki).          */
+    bool ok = false;
+    while (!ok) {
+        ok = true;
+        foodPos.x = float(S_FRAME + (std::rand() % S_COLS) * S_CELL + S_CELL / 2);
+        foodPos.y = float(S_FRAME + (std::rand() % S_ROWS) * S_CELL + S_CELL / 2);
+
+        for (const auto& seg : snake) {
+            // środek kratki, w której znajduje się segment
+            float sx = seg.x + S_CELL / 2;
+            float sy = seg.y + S_CELL / 2;
+            if (sx == foodPos.x && sy == foodPos.y) { ok = false; break; }
+        }
+    }
 }
 // ──────────────────────────────────────────────────────────────────────
 void SnakeGame::HandleInput()
@@ -42,7 +55,7 @@ void SnakeGame::HandleInput()
     if (Input::IsKeyPressed(SDLK_LEFT))  nd = 3;
 
     bool opp = (dir == 0 && nd == 2) || (dir == 2 && nd == 0) ||
-        (dir == 1 && nd == 3) || (dir == 3 && nd == 1);
+               (dir == 1 && nd == 3) || (dir == 3 && nd == 1);
     if (!opp) dir = nd;
 }
 // ──────────────────────────────────────────────────────────────────────
@@ -56,10 +69,10 @@ void SnakeGame::Update()
     for (int i = int(snake.size()) - 1; i > 0; --i) snake[i] = snake[i - 1];
 
     switch (dir) {
-    case 0: snake[0].y -= S_CELL; break;
-    case 1: snake[0].x += S_CELL; break;
-    case 2: snake[0].y += S_CELL; break;
-    case 3: snake[0].x -= S_CELL; break;
+        case 0: snake[0].y -= S_CELL; break;
+        case 1: snake[0].x += S_CELL; break;
+        case 2: snake[0].y += S_CELL; break;
+        case 3: snake[0].x -= S_CELL; break;
     }
 
     // kolizja z ramką
@@ -79,8 +92,8 @@ void SnakeGame::Update()
     float dy = (snake[0].y + S_CELL / 2) - foodPos.y;
     float sumR = S_CELL / 2 + S_FOOD_R;
     if (dx * dx + dy * dy <= sumR * sumR) {
-        snake.push_back(snake.back());   // wydłuż
-        spawnFood();
+        snake.push_back(snake.back());   // wydłuż węża
+        spawnFood();                     // wylosuj nowe kółko (z nowym warunkiem)
     }
 }
 // ──────────────────────────────────────────────────────────────────────
@@ -92,12 +105,13 @@ void SnakeGame::Render()
             SDL_Color col = ((r + c) & 1) ? COL_A : COL_B;
             Renderer::FillRect({ float(S_FRAME + c * S_CELL),
                                  float(S_FRAME + r * S_CELL) },
-                S_CELL, S_CELL, col);
+                               S_CELL, S_CELL, col);
         }
+
     // ramka
-    Renderer::FillRect({ 0,0 }, S_WIDTH, S_FRAME, { 128,128,128,255 });
+    Renderer::FillRect({ 0,0 },               S_WIDTH, S_FRAME,  { 128,128,128,255 });
     Renderer::FillRect({ 0,S_HEIGHT - S_FRAME }, S_WIDTH, S_FRAME, { 128,128,128,255 });
-    Renderer::FillRect({ 0,0 }, S_FRAME, S_HEIGHT, { 128,128,128,255 });
+    Renderer::FillRect({ 0,0 },               S_FRAME, S_HEIGHT, { 128,128,128,255 });
     Renderer::FillRect({ S_WIDTH - S_FRAME,0 }, S_FRAME, S_HEIGHT, { 128,128,128,255 });
 
     // jedzenie

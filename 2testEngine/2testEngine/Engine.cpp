@@ -169,120 +169,119 @@ void Engine::Run()
                         selectedUnregIndex = int(unregular.size()) - 1;
                         selectedIndex = -1;
                         break;
-                    case CreateMode::BITMAP: {
-                        Sprite s;
-                        if (s.bmp.load(renderer, "test.bmp")) {
-                            s.pos = m;
-                            sprites.push_back(std::move(s));
-                            sprites.emplace_back();      // dodaj nowy, pusty element
-                            auto& sp = sprites.back();   // referencja, bez odwołania do „Sprite”
-                            if (sp.bmp.load(renderer, "test.bmp")) {
-                                sp.pos = m;
-                            }
-                            else {
+                    case CreateMode::BITMAP:
+                        sprites.emplace_back();
+                        {
+                            Sprite& sp = sprites.back();
+                            if (!sp.bmp.load(renderer, "test.bmp")) {
                                 SDL_Log("Nie mogę wczytać test.bmp");
                                 sprites.pop_back();
                             }
+                            else {
+                                sp.pos = m;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                    createMode = CreateMode::NONE;
+                    isDragging = true;
+                    dragOffset = m;
+                    created = true;
+                }
+
+                if (!created) {
+                    selectedIndex = selectedUnregIndex = -1;
+                    for (int i = int(primityw.size()) - 1; i >= 0; --i) {
+                        auto& sh = primityw[i];
+                        if ((sh.type == PrimitiveType::KWADRAT && IsInsideSquare(sh, m.x, m.y)) ||
+                            (sh.type == PrimitiveType::CIRCLE && IsInsideCircle(sh, m.x, m.y))) {
+                            selectedIndex = i;
                             break;
                         }
-                        createMode = CreateMode::NONE;
+                    }
+                    if (selectedIndex < 0) {
+                        for (int i = int(unregular.size()) - 1; i >= 0; --i) {
+                            if (IsInsideUnregular(unregular[i], m.x, m.y)) {
+                                selectedUnregIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (selectedIndex >= 0 || selectedUnregIndex >= 0) {
                         isDragging = true;
                         dragOffset = m;
-                        created = true;
-                    }
-
-                                           if (!created) {
-                                               selectedIndex = selectedUnregIndex = -1;
-                                               for (int i = int(primityw.size()) - 1; i >= 0; --i) {
-                                                   auto& sh = primityw[i];
-                                                   if ((sh.type == PrimitiveType::KWADRAT && IsInsideSquare(sh, m.x, m.y)) ||
-                                                       (sh.type == PrimitiveType::CIRCLE && IsInsideCircle(sh, m.x, m.y))) {
-                                                       selectedIndex = i;
-                                                       break;
-                                                   }
-                                               }
-                                               if (selectedIndex < 0) {
-                                                   for (int i = int(unregular.size()) - 1; i >= 0; --i) {
-                                                       if (IsInsideUnregular(unregular[i], m.x, m.y)) {
-                                                           selectedUnregIndex = i;
-                                                           break;
-                                                       }
-                                                   }
-                                               }
-                                               if (selectedIndex >= 0 || selectedUnregIndex >= 0) {
-                                                   isDragging = true;
-                                                   dragOffset = m;
-                                               }
-                                           }
-                    }
-
-                    // LPM up
-                    if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
-                        isDragging = false;
-
-                    // dragging
-                    if (ev.type == SDL_MOUSEMOTION && isDragging && !snakeRunning) {
-                        Point2D cur = Input::getMausPos();
-                        float dx = cur.x - dragOffset.x;
-                        float dy = cur.y - dragOffset.y;
-                        if (selectedIndex >= 0)
-                            primityw[selectedIndex].position.translate(dx, dy);
-                        else if (selectedUnregIndex >= 0)
-                            for (auto& p : unregular[selectedUnregIndex]) p.translate(dx, dy);
-                        dragOffset = cur;
                     }
                 }
+            }
 
-                // ESC / SPACE / Snake
-                if (Input::IsKeyPressed(SDLK_ESCAPE)) isRunning = false;
-                if (!snakeRunning && Input::IsKeyPressed(SDLK_SPACE)) {
-                    snake.Restart();
-                    snakeRunning = true;
-                }
-                if (snakeRunning) {
-                    snake.HandleInput();
-                    snake.Update();
-                    if (!snake.IsAlive())
-                        snakeRunning = false;
-                }
+            // LPM up
+            if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
+                isDragging = false;
 
-                // RENDERING
-                SDL_RenderClear(renderer);
-
-                if (!snakeRunning) {
-                    // kwadraty
-                    for (const auto& p : primityw)
-                        if (p.type == PrimitiveType::KWADRAT)
-                            Renderer::FillRectRot(p.position, p.width, p.height, p.angle, p.color);
-
-                    // nieregularne wielokąty
-                    for (const auto& v : unregular) {
-                        Renderer::UnregularFill(v, { 255,0,0,255 });
-                        Renderer::DrawUnregular(v, { 255,0,0,255 });
-                    }
-
-                    // kółka
-                    for (const auto& p : primityw)
-                        if (p.type == PrimitiveType::CIRCLE)
-                            Renderer::FillCircle(p.position, p.width / 2, p.color);
-
-                    // bitmapy
-                    for (const auto& s : sprites)
-                        s.bmp.render(renderer, int(s.pos.x), int(s.pos.y));
-                }
-                else {
-                    snake.Render();
-                }
-
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                SDL_RenderPresent(renderer);
+            // dragging
+            if (ev.type == SDL_MOUSEMOTION && isDragging && !snakeRunning) {
+                Point2D cur = Input::getMausPos();
+                float dx = cur.x - dragOffset.x;
+                float dy = cur.y - dragOffset.y;
+                if (selectedIndex >= 0)
+                    primityw[selectedIndex].position.translate(dx, dy);
+                else if (selectedUnregIndex >= 0)
+                    for (auto& p : unregular[selectedUnregIndex]) p.translate(dx, dy);
+                dragOffset = cur;
             }
         }
+
+        // ESC / SPACE / Snake
+        if (Input::IsKeyPressed(SDLK_ESCAPE)) isRunning = false;
+        if (!snakeRunning && Input::IsKeyPressed(SDLK_SPACE)) {
+            snake.Restart();
+            snakeRunning = true;
+        }
+        if (snakeRunning) {
+            snake.HandleInput();
+            snake.Update();
+            if (!snake.IsAlive())
+                snakeRunning = false;
+        }
+
+        // RENDERING
+        SDL_RenderClear(renderer);
+
+        if (!snakeRunning) {
+            // kwadraty
+            for (const auto& p : primityw)
+                if (p.type == PrimitiveType::KWADRAT)
+                    Renderer::FillRectRot(p.position, p.width, p.height, p.angle, p.color);
+
+            // nieregularne wielokąty
+            for (const auto& v : unregular) {
+                Renderer::UnregularFill(v, { 255,0,0,255 });
+                Renderer::DrawUnregular(v, { 255,0,0,255 });
+            }
+
+            // kółka
+            for (const auto& p : primityw)
+                if (p.type == PrimitiveType::CIRCLE)
+                    Renderer::FillCircle(p.position, p.width / 2, p.color);
+
+            // bitmapy
+            for (const auto& s : sprites)
+                s.bmp.render(renderer, int(s.pos.x), int(s.pos.y));
+        }
+        else {
+            snake.Render();
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderPresent(renderer);
     }
 }
-        void Engine::Shutdown()
-        {
-            if (renderer) SDL_DestroyRenderer(renderer);
-            if (window)   SDL_DestroyWindow(window);
-            SDL_Quit();
-        }
+
+void Engine::Shutdown()
+{
+    if (renderer) SDL_DestroyRenderer(renderer);
+    if (window)   SDL_DestroyWindow(window);
+    SDL_Quit();
+}

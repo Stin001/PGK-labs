@@ -128,3 +128,25 @@ void Renderer::FillCircle(const Point2D& center, int radius, SDL_Color color) {
         SDL_RenderDrawLine(sdlRenderer, cx1, cy, cx2, cy);
     }
 }
+
+void Renderer::FillRectRot(const Point2D& pos, int w, int h,
+    float angleDeg, SDL_Color col)
+{
+    SDL_SetRenderDrawColor(sdlRenderer, col.r, col.g, col.b, col.a);
+    Point2D c{ pos.x + w * 0.5f, pos.y + h * 0.5f };
+    Point2D pts[4] = {
+        { pos.x,      pos.y },
+        { pos.x + w,  pos.y },
+        { pos.x + w,  pos.y + h },
+        { pos.x,      pos.y + h }
+    };
+    for (auto& p : pts)
+        p = p.rotated(angleDeg, c);
+    for (int i = 0; i < 4; ++i) {
+        auto& a = pts[i];
+        auto& b = pts[(i + 1) & 3];
+        SDL_RenderDrawLine(sdlRenderer,
+            int(a.x), int(a.y),
+            int(b.x), int(b.y));
+    }
+}

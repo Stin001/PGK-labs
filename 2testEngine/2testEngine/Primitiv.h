@@ -17,6 +17,7 @@ struct Primitive {
     Point2D position;
     int width, height;
     SDL_Color color;
+    float angle{ 0.f };
 
     // Jeœli chcemy przechowywaæ wierzcho³ki nieregularnego wielok¹ta w tym samym obiekcie
     // (niektórzy tak robi¹ – zamiast oddzielnego "unregular"), mo¿na to te¿ trzymaæ tutaj:

@@ -91,27 +91,30 @@ void Engine::Run()
                 }
 
                 if (rotDir || scale != 1.f) {
-                    if (selectedIndex >= 0) {                  // kwadrat / koło
+                    if (selectedIndex >= 0) {
                         auto& sh = primityw[selectedIndex];
                         if (scale != 1.f) {
-                            if (sh.type == PrimitiveType::KWADRAT) {
-                                Point2D c{ sh.position.x + sh.width * 0.5f,
-                                          sh.position.y + sh.height * 0.5f };
-                                int newW = int(sh.width * scale);
-                                int newH = int(sh.height * scale);
-                                if (newW >= MIN_SIZE && newH >= MIN_SIZE) {
-                                    sh.width = newW; sh.height = newH;
-                                    sh.position.x = c.x - sh.width * 0.5f;
-                                    sh.position.y = c.y - sh.height * 0.5f;
-                                }
-                            }
-                            else if (sh.type == PrimitiveType::CIRCLE) {
-                                int newD = int(sh.width * scale);
-                                if (newD >= MIN_SIZE) sh.width = newD;
+                            int newD = int(sh.width * scale);
+                            if (newD >= MIN_SIZE)
+                                sh.width = newD;
+                        }
+                            /* obrót omiń */
+                            // — skalowanie z ROUND i zawsze pozwól powiększać
+                            if (scale != 1.f) {
+                            int old = sh.width;
+                            int n = int(std::round(old * scale));        // ← użyj round()
+                            if (scale > 1.f || n >= MIN_SIZE) {
+                                sh.width = std::max(n, MIN_SIZE);
+                                if (sh.type == PrimitiveType::KWADRAT)
+                                     sh.height = std::max(int(std::round(sh.height * scale)), MIN_SIZE); 
                             }
                         }
-                        /* obrót omiń – bez sensu dla kwadratu/koła */
+                            // — obrót Q/E
+                            if (rotDir) {
+                            sh.angle = std::fmod(sh.angle + rotDir * ROT_STEP + 360.f, 360.f);
+                        }
                     }
+
                     else {                                 // wielokąt
                         auto& poly = unregular[selectedUnregIndex];
                         Point2D c{ 0,0 }; for (auto& p : poly) { c.x += p.x; c.y += p.y; }
@@ -214,7 +217,7 @@ void Engine::Run()
         if (!snakeRunning) {
             for (auto& p : primityw)
                 if (p.type == PrimitiveType::KWADRAT)
-                    Renderer::FillRect(p.position, p.width, p.height, p.color);
+                    Renderer::FillRectRot(p.position, p.width, p.height, p.angle, p.color);
             for (auto& v : unregular) {
                 Renderer::UnregularFill(v, { 255,0,0,255 });
                 Renderer::DrawUnregular(v, { 255,0,0,255 });

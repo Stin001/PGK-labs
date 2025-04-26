@@ -14,6 +14,7 @@ public:
     static void DrawLine(const Point2D& start, const Point2D& end, SDL_Color color);
     static void DrawRect(const Point2D& position, int width, int height, SDL_Color color);
     static void FillRect(const Point2D& position, int width, int height, SDL_Color color);
+    static void FillRectRot(const Point2D & position, int width, int height, float angleDeg, SDL_Color color);
 
     // Nieregularne wielok¹ty
     static void DrawUnregular(const std::vector<Point2D>& points, SDL_Color color);

@@ -14,30 +14,29 @@ enum class PrimitiveType {
 
 struct Primitive {
     PrimitiveType type;
-    Point2D position;
-    int width, height;
-    SDL_Color color;
-    float angle{ 0.f };
-
-    // Jeœli chcemy przechowywaæ wierzcho³ki nieregularnego wielok¹ta w tym samym obiekcie
-    // (niektórzy tak robi¹ – zamiast oddzielnego "unregular"), mo¿na to te¿ trzymaæ tutaj:
+    Point2D       position;
+    int           width, height;
+    SDL_Color     color;
+    float         angle{ 0.f };
     std::vector<Point2D> points_unrl;
 
     Primitive()
-        : type(PrimitiveType::KWADRAT), position(0, 0), width(50), height(50),
-        color({ 255, 255, 255, 255 }) {
+        : type(PrimitiveType::KWADRAT),
+        position(0, 0),
+        width(50), height(50),
+        color({ 255,255,255,255 })
+    {
     }
 
-    // konstruktor np. do kwadratu/kó³ka
     Primitive(PrimitiveType t, Point2D pos, int w, int h, SDL_Color col)
-        : type(t), position(pos), width(w), height(h), color(col) {
+        : type(t), position(pos), width(w), height(h), color(col)
+    {
     }
 
-    // konstruktor np. do wielok¹ta
     Primitive(PrimitiveType t, const std::vector<Point2D>& pts, SDL_Color col)
-        : type(t), points_unrl(pts), color(col) {
-        // width/height czy position nie s¹ wtedy u¿ywane
+        : type(t), points_unrl(pts), color(col)
+    {
     }
 };
 
-#endif
+#endif // PRIMITIVE_H

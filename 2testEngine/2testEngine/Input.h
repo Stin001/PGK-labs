@@ -17,4 +17,4 @@ private:
     static Point2D MausPos;
 };
 
-#endif
+#endif // INPUT_H

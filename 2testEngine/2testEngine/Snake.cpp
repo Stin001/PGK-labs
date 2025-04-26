@@ -62,7 +62,7 @@ void SnakeGame::HandleInput()
 void SnakeGame::Update()
 {
     if (!running) return;
-    if (++moveCounter < 300) return;
+    if (++moveCounter < 370) return;
     moveCounter = 0;
 
     // przesuwamy ogon

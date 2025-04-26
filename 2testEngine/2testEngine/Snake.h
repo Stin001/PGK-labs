@@ -10,10 +10,10 @@
 constexpr int S_WIDTH = 800;
 constexpr int S_HEIGHT = 600;
 constexpr int S_FRAME = 20;             // gruboœæ szarej ramki
-constexpr int S_CELL = 30;             // rozmiar jednej kratki
+constexpr int S_CELL = 40;             // rozmiar jednej kratki
 constexpr int S_COLS = (S_WIDTH - 2 * S_FRAME) / S_CELL;
 constexpr int S_ROWS = (S_HEIGHT - 2 * S_FRAME) / S_CELL;
-constexpr int S_FOOD_R = 12;             // promieñ kó³ka
+constexpr int S_FOOD_R = 16;             // promieñ kó³ka
 // kolory pól szachownicy
 constexpr SDL_Color COL_A{ 35, 35, 35, 255 };
 constexpr SDL_Color COL_B{ 60, 60, 60, 255 };

@@ -1,17 +1,18 @@
 ﻿#pragma once
 #include <SDL.h>
 #include <string>
+#include "Point2D.h"
 
-/**
- *  Prosty loader BMP → SDL_Texture + renderowanie.
- */
+// Klasa reprezentująca bitmapę (teksturę)
 class Bitmap {
+public:
     SDL_Texture* texture{ nullptr };
     int width{ 0 }, height{ 0 };
-public:
-    ~Bitmap() { destroy(); }
 
-    // ładuje czystego BMP-a, zwraca true jeśli ok
+    ~Bitmap() {
+        destroy();
+    }
+
     bool load(SDL_Renderer* renderer, const std::string& path) {
         destroy();
         SDL_Surface* surf = SDL_LoadBMP(path.c_str());
@@ -35,10 +36,80 @@ public:
         width = height = 0;
     }
 
-    // renderuje w (x,y) w oryginalnym rozmiarze
-    void render(SDL_Renderer* r, int x, int y) const {
+    void render(SDL_Renderer* r, int x, int y, int srcX = 0, int srcY = 0, int srcW = -1, int srcH = -1) const {
         if (!texture) return;
-        SDL_Rect dst{ x, y, width, height };
-        SDL_RenderCopy(r, texture, nullptr, &dst);
+
+        SDL_Rect srcRect = { srcX, srcY, srcW == -1 ? width : srcW, srcH == -1 ? height : srcH };
+        SDL_Rect dstRect = { x, y, width, height };
+        SDL_RenderCopy(r, texture, &srcRect, &dstRect);
+    }
+};
+
+// Klasa bazowa dla obiektów animowanych
+class AnimatedObject {
+public:
+    virtual void animate() = 0; // Wirtualna funkcja do animacji
+};
+
+// Klasa reprezentująca obiekt bitmapy z animacją
+class SpriteObject : public Bitmap, public AnimatedObject {
+public:
+    Point2D position;          // Pozycja bitmapy na ekranie
+    bool isAnimating;          // Czy bitmapa jest animowana
+    Point2D velocity;          // Prędkość animacji (współrzędne delta)
+
+    int currentFrame = 0;      // Indeks obecnej klatki
+    int totalFrames = 0;       // Całkowita liczba klatek w animacji
+    int frameWidth = 0;        // Szerokość pojedynczej klatki
+    int frameHeight = 0;       // Wysokość pojedynczej klatki
+    int frameDelay = 10;       // Opóźnienie między klatkami (klatki na sekundę)
+    int frameCounter = 0;      // Licznik klatek
+
+    SpriteObject()
+        : isAnimating(false), velocity(0, 0) {
+    }
+
+    bool load(SDL_Renderer* renderer, const std::string& path, const Point2D& startPos, int totalFrames, int frameWidth, int frameHeight) {
+        position = startPos;
+        this->totalFrames = totalFrames;
+        this->frameWidth = frameWidth;
+        this->frameHeight = frameHeight;
+        return Bitmap::load(renderer, path);
+    }
+
+    void startAnimation(const Point2D& vel) {
+        isAnimating = true;
+        velocity = vel;
+    }
+
+    void stopAnimation() {
+        isAnimating = false;
+        velocity = Point2D(0, 0);
+    }
+
+    // Aktualizacja pozycji bitmapy i przełączanie klatek
+    void update() override {
+        if (isAnimating) {
+            position.x += velocity.x;
+            position.y += velocity.y;
+
+            // Przełączanie klatki animacji
+            if (++frameCounter >= frameDelay) {
+                frameCounter = 0;
+                currentFrame = (currentFrame + 1) % totalFrames;
+            }
+        }
+    }
+
+    // Renderowanie aktualnej klatki
+    void render(SDL_Renderer* r) override {
+        int srcX = currentFrame * frameWidth; // Oblicz X dla bieżącej klatki
+        int srcY = 0; // W tym przypadku wszystkie klatki w jednej linii
+        Bitmap::render(r, int(position.x), int(position.y), srcX, srcY, frameWidth, frameHeight);
+    }
+
+    void animate() override {
+        // Animacja będzie wywoływana w pętli gry, w której obiekt będzie zmieniać klatki
+        update();
     }
 };

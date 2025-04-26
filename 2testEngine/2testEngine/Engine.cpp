@@ -25,6 +25,7 @@ bool Engine::Init()
         std::cerr << "SDL init error: " << SDL_GetError() << '\n';
         return false;
     }
+
     window = SDL_CreateWindow("Silnik 2D",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         WIN_W, WIN_H, SDL_WINDOW_SHOWN);
@@ -39,32 +40,6 @@ bool Engine::Init()
     return true;
 }
 
-bool Engine::IsInsideSquare(const Primitive& p, float mx, float my)
-{
-    return mx >= p.position.x && mx <= p.position.x + p.width &&
-        my >= p.position.y && my <= p.position.y + p.height;
-}
-
-bool Engine::IsInsideCircle(const Primitive& p, float mx, float my)
-{
-    float r = p.width * 0.5f;
-    float dx = mx - p.position.x;
-    float dy = my - p.position.y;
-    return dx * dx + dy * dy <= r * r;
-}
-
-bool Engine::IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my)
-{
-    if (pts.empty()) return false;
-    float minx = pts[0].x, maxx = pts[0].x;
-    float miny = pts[0].y, maxy = pts[0].y;
-    for (const auto& q : pts) {
-        minx = std::min(minx, q.x); maxx = std::max(maxx, q.x);
-        miny = std::min(miny, q.y); maxy = std::max(maxy, q.y);
-    }
-    return mx >= minx && mx <= maxx && my >= miny && my <= maxy;
-}
-
 void Engine::Run()
 {
     SDL_Event ev;
@@ -74,41 +49,49 @@ void Engine::Run()
             if (ev.type == SDL_QUIT) isRunning = false;
             Input::HandleEvent(ev);
 
-            // wybór trybu wstawiania 1/2/3/4
+            // Wybór trybu wstawiania 1/2/3/4
             if (ev.type == SDL_KEYDOWN && !snakeRunning) {
                 switch (ev.key.keysym.sym) {
                 case SDLK_1: createMode = CreateMode::KWADRAT;   break;
                 case SDLK_2: createMode = CreateMode::UNREGULAR; break;
                 case SDLK_3: createMode = CreateMode::CIRCLE;    break;
                 case SDLK_4: createMode = CreateMode::BITMAP;    break;
+                case SDLK_SPACE: {
+                    // Uruchamiamy animację bitmap (przemieszczanie w prawo)
+                    for (auto& bitmap : bitmapObjects) {
+                        if (!bitmap.isAnimating) {
+                            bitmap.startAnimation(Point2D(5, 0));  // Przemieszczanie bitmapy w prawo
+                        }
+                    }
+                    break;
+                }
                 default: break;
                 }
             }
 
-            // przekształcenia – Q/E/Z/X
+            // Obsługa przekształceń – Q/E/Z/X
             if (ev.type == SDL_KEYDOWN && !snakeRunning &&
-                (selectedIndex >= 0 || selectedUnregIndex >= 0))
-            {
-                int   rotDir = 0;
+                (selectedIndex >= 0 || selectedUnregIndex >= 0)) {
+                int rotDir = 0;
                 float scale = 1.f;
                 switch (ev.key.keysym.sym) {
-                case SDLK_q: rotDir = -1;         break;
-                case SDLK_e: rotDir = 1;         break;
-                case SDLK_z: scale = SCALE_DN;   break;
-                case SDLK_x: scale = SCALE_UP;   break;
+                case SDLK_q: rotDir = -1; break;
+                case SDLK_e: rotDir = 1; break;
+                case SDLK_z: scale = SCALE_DN; break;
+                case SDLK_x: scale = SCALE_UP; break;
                 default: break;
                 }
 
                 if (rotDir || scale != 1.f) {
-                    // KWADRAT / KOŁO
                     if (selectedIndex >= 0) {
                         auto& sh = primityw[selectedIndex];
 
-                        // obrót Q/E
+                        // Obrót Q/E
                         if (rotDir) {
                             sh.angle = std::fmod(sh.angle + rotDir * ROT_STEP + 360.f, 360.f);
                         }
-                        // skalowanie Z/X
+
+                        // Skalowanie Z/X
                         if (scale != 1.f) {
                             int oldW = sh.width;
                             int newW = int(std::round(oldW * scale));
@@ -119,7 +102,7 @@ void Engine::Run()
                             }
                         }
                     }
-                    else { // wielokąt
+                    else { // Wielokąt
                         auto& poly = unregular[selectedUnregIndex];
                         Point2D c{ 0,0 };
                         for (auto& p : poly) { c.x += p.x; c.y += p.y; }
@@ -147,8 +130,7 @@ void Engine::Run()
 
             // LPM down – tworzenie / wybór / drag
             if (!snakeRunning && ev.type == SDL_MOUSEBUTTONDOWN &&
-                ev.button.button == SDL_BUTTON_LEFT)
-            {
+                ev.button.button == SDL_BUTTON_LEFT) {
                 Point2D m = Input::getMausPos();
                 bool created = false;
 
@@ -170,20 +152,16 @@ void Engine::Run()
                         selectedIndex = -1;
                         break;
                     case CreateMode::BITMAP:
-                        sprites.emplace_back();
+                        bitmapObjects.emplace_back();
                         {
-                            Sprite& sp = sprites.back();
-                            if (!sp.bmp.load(renderer, "test.bmp")) {
+                            BitmapObject& sp = bitmapObjects.back();
+                            if (!sp.load(renderer, "test.bmp", m)) {
                                 SDL_Log("Nie mogę wczytać test.bmp");
-                                sprites.pop_back();
-                            }
-                            else {
-                                sp.pos = m;
+                                bitmapObjects.pop_back();
                             }
                         }
                         break;
-                    default:
-                        break;
+                    default: break;
                     }
                     createMode = CreateMode::NONE;
                     isDragging = true;
@@ -246,29 +224,34 @@ void Engine::Run()
                 snakeRunning = false;
         }
 
-        // RENDERING
+        // Aktualizacja bitmap
+        updateBitmapObjects();
+
+        // Rendering bitmap
         SDL_RenderClear(renderer);
+        renderBitmapObjects();
+
+        SDL_RenderPresent(renderer);
 
         if (!snakeRunning) {
-            // kwadraty
+            // Rysowanie prymitywów
             for (const auto& p : primityw)
                 if (p.type == PrimitiveType::KWADRAT)
                     Renderer::FillRectRot(p.position, p.width, p.height, p.angle, p.color);
 
-            // nieregularne wielokąty
             for (const auto& v : unregular) {
                 Renderer::UnregularFill(v, { 255,0,0,255 });
                 Renderer::DrawUnregular(v, { 255,0,0,255 });
             }
 
-            // kółka
             for (const auto& p : primityw)
                 if (p.type == PrimitiveType::CIRCLE)
                     Renderer::FillCircle(p.position, p.width / 2, p.color);
 
-            // bitmapy
-            for (const auto& s : sprites)
-                s.bmp.render(renderer, int(s.pos.x), int(s.pos.y));
+            // Renderowanie bitmap
+            for (const auto& obj : bitmapObjects) {
+                obj.render(renderer);
+            }
         }
         else {
             snake.Render();
@@ -279,8 +262,26 @@ void Engine::Run()
     }
 }
 
-void Engine::Shutdown()
-{
+void Engine::addBitmapObject(const std::string& path, const Point2D& position) {
+    BitmapObject newBitmap;
+    if (newBitmap.load(renderer, path, position)) {
+        bitmapObjects.push_back(newBitmap);
+    }
+}
+
+void Engine::updateBitmapObjects() {
+    for (auto& obj : bitmapObjects) {
+        obj.animate();  // Zmiana klatki animacji w bitmapach
+    }
+}
+
+void Engine::renderBitmapObjects() {
+    for (auto& obj : bitmapObjects) {
+        obj.render(renderer); // Renderowanie bitmap
+    }
+}
+
+void Engine::Shutdown() {
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window)   SDL_DestroyWindow(window);
     SDL_Quit();

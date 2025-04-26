@@ -6,7 +6,7 @@
 #include "Point2D.h"
 #include "Primitiv.h"
 #include "Snake.h"
-#include "BitmapAnimac.h"            // ← dodane
+#include "BitmapAnimac.h"
 
 class Engine {
 public:
@@ -17,37 +17,49 @@ public:
     void Run();
     void Shutdown();
 
-private:
-    SDL_Window* window{};
-    SDL_Renderer* renderer{};
-    bool          isRunning{ false };
+    void addBitmapObject(const std::string& path, const Point2D& position);
+    void updateBitmapObjects();
+    void renderBitmapObjects();
 
-    // prymitywy
+    // Bitmapy
+    struct Sprite {
+        Bitmap bmp;
+        Point2D pos;
+    };
+
+    // Kontener przechowujący bitmapy (BitmapObject)
+    std::vector<BitmapObject> bitmapObjects;
+
+    // Przechowywanie innych obiektów
     std::vector<Primitive>            primityw;
     std::vector<std::vector<Point2D>> unregular;
-
-    // bitmapy
-    struct Sprite { Bitmap bmp; Point2D pos; };
-    std::vector<Sprite> sprites;      // ← nowy kontener
-
-    // przeciąganie
-    bool    isDragging{ false };
-    int     selectedIndex{ -1 };
-    int     selectedUnregIndex{ -1 };
-    Point2D dragOffset{};
-
-    // tryb wstawiania 1/2/3/4
-    enum class CreateMode { NONE, KWADRAT, UNREGULAR, CIRCLE, BITMAP };
-    CreateMode createMode{ CreateMode::NONE };
 
     // Snake
     bool       snakeRunning{ false };
     SnakeGame  snake;
 
-    // kolizje
+private:
+    SDL_Window* window{};            // Wskaźnik do okna SDL
+    SDL_Renderer* renderer{};        // Wskaźnik do renderer'a SDL
+    bool          isRunning{ false }; // Stan silnika (czy działa)
+
+    // Tryb wstawiania obiektów
+    enum class CreateMode { NONE, KWADRAT, UNREGULAR, CIRCLE, BITMAP };
+    CreateMode createMode{ CreateMode::NONE };
+
+    // Do przeciągania obiektów
+    bool    isDragging{ false };
+    int     selectedIndex{ -1 };
+    int     selectedUnregIndex{ -1 };
+    Point2D dragOffset{};
+
+    // Metody pomocnicze do wykrywania kolizji
     bool IsInsideSquare(const Primitive& p, float mx, float my);
     bool IsInsideCircle(const Primitive& p, float mx, float my);
     bool IsInsideUnregular(const std::vector<Point2D>& pts, float mx, float my);
+
+    // Przechwytywanie wejścia (np. z klawiatury, myszy)
+    void HandleInput(const SDL_Event& ev);
 };
 
-#endif
+#endif // ENGINE_H

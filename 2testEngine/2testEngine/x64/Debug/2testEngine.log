@@ -1,6 +1,249 @@
 ﻿  2testEngine.cpp
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\BitmapAnimac.h(91,10): error C3668: 'SpriteObject::update': method with override specifier 'override' did not override any base class methods
+  (compiling source file '2testEngine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\BitmapAnimac.h(105,10): error C3668: 'SpriteObject::render': method with override specifier 'override' did not override any base class methods
+  (compiling source file '2testEngine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,17): error C2065: 'BitmapObject': undeclared identifier
+  (compiling source file '2testEngine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,10): error C2923: 'std::vector': 'BitmapObject' is not a valid template type argument for parameter '_Ty'
+  (compiling source file '2testEngine.cpp')
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,17):
+      see declaration of 'BitmapObject'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,10): error C2976: 'std::vector': too few template arguments
+  (compiling source file '2testEngine.cpp')
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(429,7):
+      see declaration of 'std::vector'
+  
   Engine.cpp
-  Renderer.cpp
-  Snake.cpp
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\BitmapAnimac.h(91,10): error C3668: 'SpriteObject::update': method with override specifier 'override' did not override any base class methods
+  (compiling source file 'Engine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\BitmapAnimac.h(105,10): error C3668: 'SpriteObject::render': method with override specifier 'override' did not override any base class methods
+  (compiling source file 'Engine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,17): error C2065: 'BitmapObject': undeclared identifier
+  (compiling source file 'Engine.cpp')
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,10): error C2923: 'std::vector': 'BitmapObject' is not a valid template type argument for parameter '_Ty'
+  (compiling source file 'Engine.cpp')
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,17):
+      see declaration of 'BitmapObject'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.h(31,10): error C2976: 'std::vector': too few template arguments
+  (compiling source file 'Engine.cpp')
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(429,7):
+      see declaration of 'std::vector'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_begin': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1854,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1850,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_end': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1862,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1858,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(61,41):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(155,39): error C2662: 'decltype(auto) std::vector<_Ty,_Alloc>::emplace_back<>(void)': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(155,25):
+      Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(155,25):
+      Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(856,33):
+      see declaration of 'std::vector<_Ty,_Alloc>::emplace_back'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(155,39):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,29): error C2065: 'BitmapObject': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,43): error C2065: 'sp': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,62): error C2663: 'std::vector<_Ty,_Alloc>::back': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1950,40):
+      could be 'const _Ty &std::vector<_Ty,_Alloc>::back(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,62):
+          'const _Ty &std::vector<_Ty,_Alloc>::back(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,48):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,48):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1941,34):
+      or       '_Ty &std::vector<_Ty,_Alloc>::back(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,62):
+          '_Ty &std::vector<_Ty,_Alloc>::back(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,48):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,48):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(157,62):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(158,34): error C2065: 'sp': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(160,47): error C2662: 'void std::vector<_Ty,_Alloc>::pop_back(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(160,33):
+      Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(160,33):
+      Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1706,23):
+      see declaration of 'std::vector<_Ty,_Alloc>::pop_back'
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(160,47):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_begin': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1854,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1850,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_end': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1862,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1858,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(252,36):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(266,5): error C2065: 'BitmapObject': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(266,18): error C2146: syntax error: missing ';' before identifier 'newBitmap'
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(266,18): error C2065: 'newBitmap': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(267,9): error C2065: 'newBitmap': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(268,33): error C2065: 'newBitmap': undeclared identifier
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_begin': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1854,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1850,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_end': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1862,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1858,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(273,22):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_begin': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1854,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1850,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_begin(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+      while trying to match the argument list '()'
+  
+D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22): error C2663: 'std::vector<_Ty,_Alloc>::_Unchecked_end': no overloaded function has valid conversion for 'this' pointer
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1862,40):
+      could be 'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+          'const _Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept const': cannot convert 'this' pointer from 'std::vector' to 'const std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Reason: cannot convert from 'std::vector' to 'const std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community\VC\Tools\MSVC\14.42.34433\include\vector(1858,34):
+      or       '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept'
+          D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+          '_Ty *std::vector<_Ty,_Alloc>::_Unchecked_end(void) noexcept': cannot convert 'this' pointer from 'std::vector' to 'std::vector<_Ty,_Alloc> &'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Reason: cannot convert from 'std::vector' to 'std::vector<_Ty,_Alloc>'
+              D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+              Conversion requires a second user-defined-conversion operator or constructor
+      D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(279,22):
+      while trying to match the argument list '()'
+  
   Generating Code...
-  2testEngine.vcxproj -> D:\Visual Studio Community Projects\PGK-labs\2testEngine\x64\Debug\2testEngine.exe

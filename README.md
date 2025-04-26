@@ -1,8 +1,13 @@
+-------------------------Instalacja SDL-------------------------
+
+https://www.youtube.com/watch?v=13AEnd8XB70&t=191s
+
 -------------------------Instrukcja obsługi-------------------------
 
-1+LPM = dodanie kształtu
-2+LPM = dodanie kształtu
-3+LPM = dodanie kształtu
+1+LPM = dodanie kwadratu
+2+LPM = dodanie wielokąta
+3+LPM = dodanie koła
+4+LPM = dodanie bitmapy
 
 Obrót kształtu - naciśnij LPM na figurę i kliknij Q lub E
 

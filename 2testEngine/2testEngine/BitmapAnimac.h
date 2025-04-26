@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 #include <SDL.h>
 #include <string>
 #include "Point2D.h"
@@ -65,6 +66,8 @@ public:
     int frameDelay = 10;       // Opóźnienie między klatkami (klatki na sekundę)
     int frameCounter = 0;      // Licznik klatek
 
+    int dir = 1;               // Kierunek węża (0: góra, 1: prawo, 2: dół, 3: lewo)
+
     SpriteObject()
         : isAnimating(false), velocity(0, 0) {
     }
@@ -109,7 +112,21 @@ public:
     }
 
     void animate() override {
-        // Animacja będzie wywoływana w pętli gry, w której obiekt będzie zmieniać klatki
-        update();
+        // W zależności od kierunku ruchu zmieniamy klatki animacji
+        switch (dir) {
+        case 0: // Ruch w górę
+            currentFrame = 0;
+            break;
+        case 1: // Ruch w prawo
+            currentFrame = 1;
+            break;
+        case 2: // Ruch w dół
+            currentFrame = 2;
+            break;
+        case 3: // Ruch w lewo
+            currentFrame = 3;
+            break;
+        }
+        update();  // Aktualizuj pozycję
     }
 };

@@ -97,28 +97,44 @@ void SnakeGame::Update()
     }
 }
 // ──────────────────────────────────────────────────────────────────────
+// Węzeł węża będzie teraz korzystać z bitmapy i animacji w zależności od kierunku
 void SnakeGame::Render()
 {
-    // szachownica
+    // Rysowanie planszy (szachownica)
     for (int r = 0; r < S_ROWS; ++r)
         for (int c = 0; c < S_COLS; ++c) {
             SDL_Color col = ((r + c) & 1) ? COL_A : COL_B;
             Renderer::FillRect({ float(S_FRAME + c * S_CELL),
                                  float(S_FRAME + r * S_CELL) },
-                               S_CELL, S_CELL, col);
+                S_CELL, S_CELL, col);
         }
 
-    // ramka
-    Renderer::FillRect({ 0,0 },               S_WIDTH, S_FRAME,  { 128,128,128,255 });
-    Renderer::FillRect({ 0,S_HEIGHT - S_FRAME }, S_WIDTH, S_FRAME, { 128,128,128,255 });
-    Renderer::FillRect({ 0,0 },               S_FRAME, S_HEIGHT, { 128,128,128,255 });
-    Renderer::FillRect({ S_WIDTH - S_FRAME,0 }, S_FRAME, S_HEIGHT, { 128,128,128,255 });
+    // Rysowanie węża jako animowane bitmapy
+    for (size_t i = 0; i < snake.size(); ++i) {
+        // Animacja segmentów węża w zależności od kierunku
+        if (i == 0) {  // Głowa węża
+            // Tu można ustawić animację w zależności od kierunku
+            if (dir == 0) { // Ruch w górę
+                snakeHead.startAnimation(Point2D(0, -5));
+            }
+            else if (dir == 1) { // Ruch w prawo
+                snakeHead.startAnimation(Point2D(5, 0));
+            }
+            else if (dir == 2) { // Ruch w dół
+                snakeHead.startAnimation(Point2D(0, 5));
+            }
+            else if (dir == 3) { // Ruch w lewo
+                snakeHead.startAnimation(Point2D(-5, 0));
+            }
 
-    // jedzenie
+            snakeHead.update(); // Aktualizacja animacji
+            snakeHead.render(renderer);
+        }
+        else {  // Segmenty ciała
+            Renderer::FillRect({ snake[i].x, snake[i].y }, S_CELL, S_CELL, { 255,0,0,255 });
+        }
+    }
+
+    // Rysowanie jedzenia
     Renderer::FillCircle(foodPos, S_FOOD_R, { 0,255,0,255 });
-
-    // wąż
-    for (const auto& s : snake)
-        Renderer::FillRect({ s.x,s.y }, S_CELL, S_CELL, { 255,0,0,255 });
 }
-// ──────────────────────────────────────────────────────────────────────

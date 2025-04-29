@@ -1,6 +1,11 @@
-﻿  Engine.cpp
-D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(98,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(99,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(141,52): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Visual Studio Community Projects\PGK-labs\2testEngine\2testEngine\Engine.cpp(142,52): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-  2testEngine.vcxproj -> D:\Visual Studio Community Projects\PGK-labs\2testEngine\x64\Debug\2testEngine.exe
+﻿  2testEngine.cpp
+  BitmapAnimac.cpp
+  Engine.cpp
+C:\Users\isiek\OneDrive\Pulpit\tesrrep\2testEngine\2testEngine\Engine.cpp(98,48): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\isiek\OneDrive\Pulpit\tesrrep\2testEngine\2testEngine\Engine.cpp(99,48): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\isiek\OneDrive\Pulpit\tesrrep\2testEngine\2testEngine\Engine.cpp(141,52): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\isiek\OneDrive\Pulpit\tesrrep\2testEngine\2testEngine\Engine.cpp(142,52): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+  Input.cpp
+  Renderer.cpp
+  Generowanie kodu...
+  2testEngine.vcxproj -> C:\Users\isiek\OneDrive\Pulpit\tesrrep\2testEngine\x64\Debug\2testEngine.exe
